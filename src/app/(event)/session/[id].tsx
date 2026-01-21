@@ -1,0 +1,414 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import * as Haptics from 'expo-haptics';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  SlideInRight,
+} from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Screen } from '@/components/layout';
+import { Button, Text } from '@/components/ui';
+import { useTheme } from '@/hooks/useTheme';
+import { borderRadius, colors, spacing } from '@/lib/theme';
+import { useEventStore } from '@/store';
+import { SessionType, Speaker } from '@/types';
+import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
+
+const getSessionTypeLabel = (type: SessionType): string => {
+  const labels: Record<SessionType, string> = {
+    talk: 'Palestra',
+    workshop: 'Workshop',
+    panel: 'Painel',
+    keynote: 'Keynote',
+    break: 'Intervalo',
+    networking: 'Networking',
+  };
+  return labels[type] || type;
+};
+
+interface SpeakerCardProps {
+  speaker: Speaker;
+  index: number;
+  onPress: () => void;
+}
+
+function SpeakerCard({ speaker, index, onPress }: SpeakerCardProps) {
+  const { colorScheme, hapticEnabled } = useTheme();
+  const themeColors = colors[colorScheme];
+
+  const handlePress = () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    onPress();
+  };
+
+  return (
+    <Animated.View entering={SlideInRight.delay(index * 100).springify()}>
+      <Pressable
+        onPress={handlePress}
+        style={[
+          styles.speakerCard,
+          { backgroundColor: themeColors.surfaceSecondary },
+        ]}
+      >
+        {(() => {
+          // Get avatar URL: prefer photoUrl, then GitHub avatar, then fallback
+          const avatarUrl =
+            speaker.photoUrl ||
+            getGitHubAvatarUrl(speaker.links?.github) ||
+            undefined;
+
+          return avatarUrl ? (
+            <Image
+              source={{ uri: avatarUrl }}
+              style={styles.speakerPhoto}
+              contentFit="cover"
+            />
+          ) : (
+            <View
+              style={[
+                styles.speakerPhoto,
+                { backgroundColor: themeColors.surface },
+              ]}
+            >
+              <Ionicons name="person" size={32} color={themeColors.iconSecondary} />
+            </View>
+          );
+        })()}
+
+        <View style={styles.speakerInfo}>
+          <Text variant="h4" color="text" numberOfLines={1}>
+            {speaker.name}
+          </Text>
+          {speaker.role && speaker.company && (
+            <Text variant="bodySmall" color="textSecondary" numberOfLines={1}>
+              {speaker.role} @ {speaker.company}
+            </Text>
+          )}
+        </View>
+
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={themeColors.iconSecondary}
+        />
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+/**
+ * Session detail screen.
+ * Shows full session information with animated content.
+ */
+export default function SessionDetailScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { colorScheme, hapticEnabled } = useTheme();
+  const themeColors = colors[colorScheme];
+
+  const { getSessionById, isBookmarked, toggleBookmark, getSpeakerById } = useEventStore();
+  const session = getSessionById(id);
+
+  if (!session) {
+    return (
+      <Screen safeArea="both" centered>
+        <Text variant="body" color="textSecondary">
+          Sessão não encontrada
+        </Text>
+        <Button onPress={() => router.back()} style={styles.backButton}>
+          Voltar
+        </Button>
+      </Screen>
+    );
+  }
+
+  const bookmarked = isBookmarked(session.id);
+  const startTime = new Date(session.startTime);
+  const endTime = new Date(session.endTime);
+
+  const handleBookmarkPress = () => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    toggleBookmark(session.id);
+  };
+
+  const handleSpeakerPress = (speakerId: string) => {
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    router.push(`/(event)/speaker/${speakerId}`);
+  };
+
+  return (
+    <>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          headerTransparent: Platform.OS === 'ios',
+          headerBlurEffect: colorScheme === 'dark' ? 'dark' : 'light',
+          title: '',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleBookmarkPress}
+              activeOpacity={0.6}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={styles.headerButton}
+            >
+              <Ionicons
+                name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+                size={24}
+                color={bookmarked ? themeColors.tint : themeColors.icon}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <Screen safeArea="none" padded={false}>
+        <ScrollView
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: insets.bottom + spacing.xxxl },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Type badge */}
+          <Animated.View entering={FadeIn.delay(100)}>
+            <View
+              style={[
+                styles.typeBadge,
+                { backgroundColor: themeColors.tint },
+              ]}
+            >
+              <Text variant="label" color="textInverse">
+                {getSessionTypeLabel(session.type)}
+              </Text>
+            </View>
+          </Animated.View>
+
+          {/* Title */}
+          <Animated.View entering={FadeInDown.delay(150).springify()}>
+            <Text variant="h1" color="text" style={styles.title}>
+              {session.title}
+            </Text>
+          </Animated.View>
+
+          {/* Time and location info */}
+          <Animated.View
+            entering={FadeInDown.delay(200).springify()}
+            style={styles.metaContainer}
+          >
+            <View style={styles.metaRow}>
+              <Ionicons
+                name="calendar-outline"
+                size={20}
+                color={themeColors.icon}
+              />
+              <Text variant="body" color="text">
+                {format(startTime, "EEEE, d 'de' MMMM", { locale: ptBR })}
+              </Text>
+            </View>
+
+            <View style={styles.metaRow}>
+              <Ionicons name="time-outline" size={20} color={themeColors.icon} />
+              <Text variant="body" color="text">
+                {format(startTime, 'HH:mm', { locale: ptBR })} -{' '}
+                {format(endTime, 'HH:mm', { locale: ptBR })}
+              </Text>
+            </View>
+
+            {session.room && (
+              <View style={styles.metaRow}>
+                <Ionicons
+                  name="location-outline"
+                  size={20}
+                  color={themeColors.icon}
+                />
+                <Text variant="body" color="text">
+                  {session.room}
+                </Text>
+              </View>
+            )}
+          </Animated.View>
+
+          {/* Description */}
+          {session.description && (
+            <Animated.View entering={FadeInDown.delay(250).springify()}>
+              <Text variant="h4" color="text" style={styles.sectionTitle}>
+                Sobre
+              </Text>
+              <Text variant="body" color="textSecondary" style={styles.description}>
+                {session.description}
+              </Text>
+            </Animated.View>
+          )}
+
+          {/* Speakers */}
+          {session.speakers.length > 0 && (
+            <Animated.View entering={FadeInDown.delay(300).springify()}>
+              <Text variant="h4" color="text" style={styles.sectionTitle}>
+                {session.speakers.length === 1 ? 'Palestrante' : 'Palestrantes'}
+              </Text>
+              <View style={styles.speakersList}>
+                {session.speakers
+                  .map((speakerId) => getSpeakerById(speakerId))
+                  .filter((speaker): speaker is Speaker => speaker !== undefined)
+                  .map((speaker, index) => (
+                    <SpeakerCard
+                      key={speaker.id}
+                      speaker={speaker}
+                      index={index}
+                      onPress={() => handleSpeakerPress(speaker.id)}
+                    />
+                  ))}
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Tags */}
+          {session.tags && session.tags.length > 0 && (
+            <Animated.View entering={FadeInDown.delay(350).springify()}>
+              <Text variant="h4" color="text" style={styles.sectionTitle}>
+                Tags
+              </Text>
+              <View style={styles.tagsContainer}>
+                {session.tags.map((tag) => (
+                  <View
+                    key={tag}
+                    style={[
+                      styles.tag,
+                      { backgroundColor: themeColors.surfaceSecondary },
+                    ]}
+                  >
+                    <Text variant="label" color="textSecondary">
+                      #{tag}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </Animated.View>
+          )}
+        </ScrollView>
+
+        {/* Bookmark button fixed at bottom */}
+        <Animated.View
+          entering={FadeIn.delay(400)}
+          style={[
+            styles.bottomBar,
+            {
+              paddingBottom: insets.bottom + spacing.lg,
+              backgroundColor: themeColors.background,
+              borderTopColor: themeColors.border,
+            },
+          ]}
+        >
+          <Button
+            variant={bookmarked ? 'secondary' : 'primary'}
+            fullWidth
+            leftIcon={
+              <Ionicons
+                name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+                size={20}
+                color={bookmarked ? themeColors.text : themeColors.textInverse}
+              />
+            }
+            onPress={handleBookmarkPress}
+          >
+            {bookmarked ? 'Remover dos salvos' : 'Salvar sessão'}
+          </Button>
+        </Animated.View>
+      </Screen>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  headerButton: {
+    padding: spacing.xs,
+  },
+  scrollContent: {
+    padding: spacing.lg,
+    paddingTop: spacing.xl,
+  },
+  typeBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    marginBottom: spacing.md,
+  },
+  title: {
+    marginBottom: spacing.lg,
+  },
+  metaContainer: {
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  sectionTitle: {
+    marginBottom: spacing.md,
+  },
+  description: {
+    marginBottom: spacing.xl,
+    lineHeight: 24,
+  },
+  speakersList: {
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  speakerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.md,
+    borderRadius: borderRadius.lg,
+    gap: spacing.md,
+  },
+  speakerPhoto: {
+    width: 56,
+    height: 56,
+    borderRadius: borderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  speakerInfo: {
+    flex: 1,
+    gap: spacing.xxs,
+  },
+  tagsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+  tag: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: spacing.lg,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  backButton: {
+    marginTop: spacing.lg,
+  },
+});
