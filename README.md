@@ -1,6 +1,12 @@
 # 🎤 Pupunha Conf
 
-App mobile para gerenciamento de conferências e meetups do Pupunha Code. Desenvolvido com React Native e Expo.
+![pupunhasdsds](https://github.com/user-attachments/assets/f54bf35e-49d3-420f-b8c1-130501ed0bb8)
+
+App mobile para conferências e meetups do Pupunha Code. Desenvolvido com React Native e Expo.
+
+**Altamente** inspirado pelos apps da **Codecon** e do **React Conf**. 
+
+https://github.com/expo/react-conf-app
 
 ## ✨ Funcionalidades
 
@@ -29,7 +35,7 @@ App mobile para gerenciamento de conferências e meetups do Pupunha Code. Desenv
 
 1. **Clone o repositório**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/pupunha-code/pupunha-conf
    cd pupunha-conf
    ```
 
@@ -75,14 +81,6 @@ src/
 ├── types/           # Definições TypeScript
 └── utils/           # Funções utilitárias
 ```
-
-## 📄 Licença
-
-Este projeto é privado e proprietário.
-
-## 👤 Autor
-
-**Luma Montes**
 
 ---
 
