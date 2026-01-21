@@ -1,50 +1,89 @@
-# Welcome to your Expo app 👋
+# 🎤 Pupunha Conf
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App mobile para gerenciamento de conferências e meetups do Pupunha Code. Desenvolvido com React Native e Expo.
 
-## Get started
+## ✨ Funcionalidades
 
-1. Install dependencies
+- 📅 **Calendário de Eventos** - Navegue por sessões organizadas por dia
+- 👥 **Palestrantes** - Perfis com avatares do GitHub, biografias e links sociais
+- 📝 **Detalhes das Sessões** - Informações completas sobre palestras e workshops
+- 🔖 **Favoritos** - Salve sessões favoritas para acesso rápido
+- 🌓 **Modo Escuro** - Suporte automático a tema claro/escuro
+- 📱 **Multiplataforma** - iOS, Android e Web
 
+## 🛠️ Tecnologias
+
+- Expo ~54.0
+- React Native 0.81.5
+- TypeScript
+- Zustand (gerenciamento de estado)
+- Expo Router (roteamento)
+
+## 📋 Pré-requisitos
+
+- [Bun](https://bun.sh) (v1.0 ou superior)
+- Node.js (v18 ou superior)
+- Expo CLI (opcional)
+
+## 🚀 Instalação
+
+1. **Clone o repositório**
    ```bash
-   npm install
+   git clone <repository-url>
+   cd pupunha-conf
    ```
 
-2. Start the app
-
+2. **Instale as dependências**
    ```bash
-   npx expo start
+   bun install
    ```
 
-In the output, you'll find options to open the app in a
+## 💻 Desenvolvimento
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+1. **Inicie o servidor de desenvolvimento**
+   ```bash
+   bun run start
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+2. **Execute em uma plataforma específica**
+   ```bash
+   bun run ios      # iOS Simulator (macOS)
+   bun run android  # Android Emulator
+   bun run web      # Navegador web
+   ```
 
-## Get a fresh project
+## 📜 Scripts Disponíveis
 
-When you're ready, run:
+- `bun run start` - Inicia o servidor Expo
+- `bun run ios` - Executa no simulador iOS
+- `bun run android` - Executa no emulador Android
+- `bun run web` - Executa no navegador
+- `bun run lint` - Executa o linter
+- `bun run format` - Formata o código
+- `bun run typecheck` - Verifica tipos TypeScript
 
-```bash
-npm run reset-project
+## 📁 Estrutura do Projeto
+
+```
+src/
+├── app/              # Rotas (Expo Router)
+├── components/        # Componentes reutilizáveis
+├── features/         # Funcionalidades específicas
+├── hooks/           # Hooks customizados
+├── lib/             # Utilitários e tema
+├── store/           # Stores Zustand
+├── types/           # Definições TypeScript
+└── utils/           # Funções utilitárias
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 📄 Licença
 
-## Learn more
+Este projeto é privado e proprietário.
 
-To learn more about developing your project with Expo, look at the following resources:
+## 👤 Autor
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+**Luma Montes**
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Feito com ❤️ para a comunidade Pupunha Code
