@@ -9,9 +9,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
 import { Text } from '@/components/ui';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
-import { useEventStore } from '@/store';
 import { Speaker } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
 
@@ -119,9 +119,8 @@ export default function SpeakersScreen() {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getAllSpeakers, getActiveEvent } = useEventStore();
-  const speakers = getAllSpeakers();
-  const activeEvent = getActiveEvent();
+  const { activeEvent, allSpeakers } = useActiveEvent();
+  const speakers = allSpeakers;
 
   if (!activeEvent) {
     return (

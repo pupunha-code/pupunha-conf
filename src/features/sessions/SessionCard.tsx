@@ -13,9 +13,9 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { Text } from '@/components/ui';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
-import { useEventStore } from '@/store';
 import { Session, SessionType } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
 
@@ -60,7 +60,7 @@ export const SessionCard = memo(function SessionCard({
   const themeColors = colors[colorScheme];
   const scale = useSharedValue(1);
 
-  const { isBookmarked, toggleBookmark, getSpeakerById } = useEventStore();
+  const { isBookmarked, toggleBookmark, getSpeaker } = useActiveEvent();
   const bookmarked = isBookmarked(session.id);
 
   const isBreak = session.type === 'break' || session.type === 'networking';
@@ -190,7 +190,7 @@ export const SessionCard = memo(function SessionCard({
         {session.speakers.length > 0 && (
           <View style={styles.speakers}>
             {session.speakers.map((speakerId) => {
-              const speaker = getSpeakerById(speakerId);
+              const speaker = getSpeaker(speakerId);
               if (!speaker) return null;
 
               // Get avatar URL: prefer photoUrl, then GitHub avatar, then fallback

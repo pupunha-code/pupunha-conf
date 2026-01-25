@@ -17,9 +17,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen } from '@/components/layout';
 import { Card, Text } from '@/components/ui';
 import { SessionCard } from '@/features/sessions/SessionCard';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
-import { useEventStore } from '@/store';
 import { EventDay, Session } from '@/types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -109,15 +109,13 @@ export default function CalendarScreen() {
   const themeColors = colors[colorScheme];
 
   const {
-    getActiveEvent,
-    getActiveDay,
+    activeEvent,
+    activeDay,
     activeEventId,
     activeDayId,
     setActiveDay,
-  } = useEventStore();
+  } = useActiveEvent();
 
-  const activeEvent = getActiveEvent();
-  const activeDay = getActiveDay();
   const days = activeEvent?.days || [];
   const hasMultipleDays = days.length > 1;
 

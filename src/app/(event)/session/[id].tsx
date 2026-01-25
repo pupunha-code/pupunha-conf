@@ -10,9 +10,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
 import { Button, Text } from '@/components/ui';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
-import { useEventStore } from '@/store';
 import { SessionType, Speaker } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
 
@@ -93,11 +93,11 @@ export default function SessionDetailScreen() {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getSessionById, isBookmarked, toggleBookmark, getSpeakerById, bookmarks } = useEventStore();
-  const session = getSessionById(id);
+  const { getSession, isBookmarked, toggleBookmark, getSpeaker, bookmarkedSessions } = useActiveEvent();
+  const session = getSession(id);
   
-  // Compute bookmark status reactively using the bookmarks array
-  const isSessionBookmarked = bookmarks.some(bookmark => bookmark.sessionId === id);
+  // Compute bookmark status using the built-in method
+  const isSessionBookmarked = isBookmarked(id);
 
   if (!session) {
     return (
@@ -236,7 +236,7 @@ export default function SessionDetailScreen() {
               </Text>
               <View style={styles.speakersList}>
                 {session.speakers
-                  .map((speakerId) => getSpeakerById(speakerId))
+                  .map((speakerId) => getSpeaker(speakerId))
                   .filter((speaker): speaker is Speaker => speaker !== undefined)
                   .map((speaker, index) => (
                     <SpeakerCard

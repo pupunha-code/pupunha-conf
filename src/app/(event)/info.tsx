@@ -10,9 +10,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
 import { Text } from '@/components/ui';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
-import { useAppStore, useEventStore } from '@/store';
+import { useAppStore } from '@/store';
 
 interface SettingsRowProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -87,9 +88,8 @@ export default function InfoScreen() {
   const { colorScheme, isDark, hapticEnabled, toggleHaptic } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getActiveEvent } = useEventStore();
+  const { activeEvent } = useActiveEvent();
   const { themeMode, setThemeMode, useLocalTimezone, toggleLocalTimezone } = useAppStore();
-  const activeEvent = getActiveEvent();
 
   const handleChangeEvent = () => {
     router.push('/');

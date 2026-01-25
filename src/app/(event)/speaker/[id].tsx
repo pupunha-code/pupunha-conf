@@ -13,7 +13,7 @@ import { Screen } from '@/components/layout';
 import { Button, Card, Text } from '@/components/ui';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
-import { useEventStore } from '@/store';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { Session } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
 
@@ -28,10 +28,9 @@ export default function SpeakerDetailScreen() {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getSpeakerById, getSessionsBySpeakerId, getActiveEvent } = useEventStore();
-  const speaker = getSpeakerById(id);
-  const sessions = speaker ? getSessionsBySpeakerId(id) : [];
-  const activeEvent = getActiveEvent();
+  const { getSpeaker, getSessionsBySpeaker, activeEvent } = useActiveEvent();
+  const speaker = getSpeaker(id);
+  const sessions = speaker ? getSessionsBySpeaker(id) : [];
 
   if (!speaker) {
     return (
