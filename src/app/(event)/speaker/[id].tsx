@@ -1,15 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import * as Haptics from 'expo-haptics';
-import * as WebBrowser from 'expo-web-browser';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeInDown,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
@@ -56,11 +53,7 @@ export default function SpeakerDetailScreen() {
     await WebBrowser.openBrowserAsync(url);
   };
 
-  // Get avatar URL: prefer photoUrl, then GitHub avatar, then fallback
-  const avatarUrl =
-    speaker.photoUrl ||
-    getGitHubAvatarUrl(speaker.links?.github) ||
-    undefined;
+  const avatarUrl = speaker.photoUrl || getGitHubAvatarUrl(speaker.links?.github) || undefined;
 
   return (
     <>
@@ -85,28 +78,16 @@ export default function SpeakerDetailScreen() {
 
       <Screen safeArea="top" padded={false}>
         <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}
         >
           {/* Speaker Header */}
           <Animated.View entering={FadeIn.delay(100).springify()}>
             <View style={styles.header}>
               {avatarUrl ? (
-                <Image
-                  source={{ uri: avatarUrl }}
-                  style={styles.avatar}
-                  contentFit="cover"
-                />
+                <Image source={{ uri: avatarUrl }} style={styles.avatar} contentFit="cover" />
               ) : (
-                <View
-                  style={[
-                    styles.avatar,
-                    { backgroundColor: themeColors.surfaceSecondary },
-                  ]}
-                >
+                <View style={[styles.avatar, { backgroundColor: themeColors.surfaceSecondary }]}>
                   <Ionicons name="person" size={64} color={themeColors.iconSecondary} />
                 </View>
               )}
@@ -185,7 +166,7 @@ export default function SpeakerDetailScreen() {
             <Animated.View entering={FadeInDown.delay(300).springify()}>
               <View style={styles.section}>
                 <Text variant="h4" color="text" style={styles.sectionTitle}>
-                  {sessions.length === 1 ? 'Sessão' : 'Sessões'} ({sessions.length})
+                  {sessions.length === 1 ? 'Palestra' : 'Palestras'} ({sessions.length})
                 </Text>
                 <View style={styles.sessionsList}>
                   {sessions.map((session, index) => (
@@ -250,7 +231,12 @@ function SessionCard({ session, index, onPress }: SessionCardProps) {
         </Text>
 
         {session.description && (
-          <Text variant="bodySmall" color="textSecondary" numberOfLines={2} style={styles.sessionDescription}>
+          <Text
+            variant="bodySmall"
+            color="textSecondary"
+            numberOfLines={2}
+            style={styles.sessionDescription}
+          >
             {session.description}
           </Text>
         )}

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { memo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -42,25 +42,13 @@ const SpeakerCard = memo(function SpeakerCard({ speaker, index }: SpeakerCardPro
         ]}
       >
         {(() => {
-          // Get avatar URL: prefer photoUrl, then GitHub avatar, then fallback
           const avatarUrl =
-            speaker.photoUrl ||
-            getGitHubAvatarUrl(speaker.links?.github) ||
-            undefined;
+            speaker.photoUrl || getGitHubAvatarUrl(speaker.links?.github) || undefined;
 
           return avatarUrl ? (
-            <Image
-              source={{ uri: avatarUrl }}
-              style={styles.speakerPhoto}
-              contentFit="cover"
-            />
+            <Image source={{ uri: avatarUrl }} style={styles.speakerPhoto} contentFit="cover" />
           ) : (
-            <View
-              style={[
-                styles.speakerPhoto,
-                { backgroundColor: themeColors.surfaceSecondary },
-              ]}
-            >
+            <View style={[styles.speakerPhoto, { backgroundColor: themeColors.surfaceSecondary }]}>
               <Ionicons name="person" size={40} color={themeColors.iconSecondary} />
             </View>
           );
@@ -80,12 +68,7 @@ const SpeakerCard = memo(function SpeakerCard({ speaker, index }: SpeakerCardPro
           )}
 
           {speaker.bio && (
-            <Text
-              variant="caption"
-              color="textTertiary"
-              numberOfLines={2}
-              style={styles.bio}
-            >
+            <Text variant="caption" color="textTertiary" numberOfLines={2} style={styles.bio}>
               {speaker.bio}
             </Text>
           )}
@@ -162,10 +145,7 @@ export default function SpeakersScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {speakers.map((speaker, index) => (

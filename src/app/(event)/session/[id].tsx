@@ -1,15 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import * as Haptics from 'expo-haptics';
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  FadeIn,
-  FadeInDown,
-  SlideInRight,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
@@ -19,6 +15,7 @@ import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useEventStore } from '@/store';
 import { SessionType, Speaker } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
+import { useState } from 'react';
 
 const getSessionTypeLabel = (type: SessionType): string => {
   const labels: Record<SessionType, string> = {
@@ -53,31 +50,17 @@ function SpeakerCard({ speaker, index, onPress }: SpeakerCardProps) {
     <Animated.View entering={SlideInRight.delay(index * 100).springify()}>
       <Pressable
         onPress={handlePress}
-        style={[
-          styles.speakerCard,
-          { backgroundColor: themeColors.surfaceSecondary },
-        ]}
+        style={[styles.speakerCard, { backgroundColor: themeColors.surfaceSecondary }]}
       >
         {(() => {
           // Get avatar URL: prefer photoUrl, then GitHub avatar, then fallback
           const avatarUrl =
-            speaker.photoUrl ||
-            getGitHubAvatarUrl(speaker.links?.github) ||
-            undefined;
+            speaker.photoUrl || getGitHubAvatarUrl(speaker.links?.github) || undefined;
 
           return avatarUrl ? (
-            <Image
-              source={{ uri: avatarUrl }}
-              style={styles.speakerPhoto}
-              contentFit="cover"
-            />
+            <Image source={{ uri: avatarUrl }} style={styles.speakerPhoto} contentFit="cover" />
           ) : (
-            <View
-              style={[
-                styles.speakerPhoto,
-                { backgroundColor: themeColors.surface },
-              ]}
-            >
+            <View style={[styles.speakerPhoto, { backgroundColor: themeColors.surface }]}>
               <Ionicons name="person" size={32} color={themeColors.iconSecondary} />
             </View>
           );
@@ -94,11 +77,7 @@ function SpeakerCard({ speaker, index, onPress }: SpeakerCardProps) {
           )}
         </View>
 
-        <Ionicons
-          name="chevron-forward"
-          size={20}
-          color={themeColors.iconSecondary}
-        />
+        <Ionicons name="chevron-forward" size={20} color={themeColors.iconSecondary} />
       </Pressable>
     </Animated.View>
   );
@@ -116,13 +95,14 @@ export default function SessionDetailScreen() {
   const themeColors = colors[colorScheme];
 
   const { getSessionById, isBookmarked, toggleBookmark, getSpeakerById } = useEventStore();
+  const [localBookmarked, setLocalBookmarked] = useState(isBookmarked(id));
   const session = getSessionById(id);
 
   if (!session) {
     return (
       <Screen safeArea="both" centered>
         <Text variant="body" color="textSecondary">
-          Sessão não encontrada
+          Palestra não encontrada
         </Text>
         <Button onPress={() => router.back()} style={styles.backButton}>
           Voltar
@@ -140,6 +120,8 @@ export default function SessionDetailScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     toggleBookmark(session.id);
+    setLocalBookmarked(!localBookmarked);
+    //atualizar estado do botão de bookmark sem precisar de um useState ou useEffect?
   };
 
   const handleSpeakerPress = (speakerId: string) => {
@@ -157,6 +139,16 @@ export default function SessionDetailScreen() {
           headerTransparent: Platform.OS === 'ios',
           headerBlurEffect: colorScheme === 'dark' ? 'dark' : 'light',
           title: '',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              activeOpacity={0.6}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={styles.headerButton}
+            >
+              <Ionicons name="chevron-back" size={24} color={themeColors.icon} />
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <TouchableOpacity
               onPress={handleBookmarkPress}
@@ -165,9 +157,9 @@ export default function SessionDetailScreen() {
               style={styles.headerButton}
             >
               <Ionicons
-                name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+                name={localBookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={24}
-                color={bookmarked ? themeColors.tint : themeColors.icon}
+                color={localBookmarked ? themeColors.tint : themeColors.icon}
               />
             </TouchableOpacity>
           ),
@@ -178,18 +170,14 @@ export default function SessionDetailScreen() {
         <ScrollView
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + spacing.xxxl },
+            { paddingBottom: insets.bottom + spacing.xxxl + spacing.xxxxl },
+            { paddingTop: insets.top + spacing.xxxl },
           ]}
           showsVerticalScrollIndicator={false}
         >
           {/* Type badge */}
           <Animated.View entering={FadeIn.delay(100)}>
-            <View
-              style={[
-                styles.typeBadge,
-                { backgroundColor: themeColors.tint },
-              ]}
-            >
+            <View style={[styles.typeBadge, { backgroundColor: themeColors.tint }]}>
               <Text variant="label" color="textInverse">
                 {getSessionTypeLabel(session.type)}
               </Text>
@@ -204,16 +192,9 @@ export default function SessionDetailScreen() {
           </Animated.View>
 
           {/* Time and location info */}
-          <Animated.View
-            entering={FadeInDown.delay(200).springify()}
-            style={styles.metaContainer}
-          >
+          <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.metaContainer}>
             <View style={styles.metaRow}>
-              <Ionicons
-                name="calendar-outline"
-                size={20}
-                color={themeColors.icon}
-              />
+              <Ionicons name="calendar-outline" size={20} color={themeColors.icon} />
               <Text variant="body" color="text">
                 {format(startTime, "EEEE, d 'de' MMMM", { locale: ptBR })}
               </Text>
@@ -229,11 +210,7 @@ export default function SessionDetailScreen() {
 
             {session.room && (
               <View style={styles.metaRow}>
-                <Ionicons
-                  name="location-outline"
-                  size={20}
-                  color={themeColors.icon}
-                />
+                <Ionicons name="location-outline" size={20} color={themeColors.icon} />
                 <Text variant="body" color="text">
                   {session.room}
                 </Text>
@@ -285,10 +262,7 @@ export default function SessionDetailScreen() {
                 {session.tags.map((tag) => (
                   <View
                     key={tag}
-                    style={[
-                      styles.tag,
-                      { backgroundColor: themeColors.surfaceSecondary },
-                    ]}
+                    style={[styles.tag, { backgroundColor: themeColors.surfaceSecondary }]}
                   >
                     <Text variant="label" color="textSecondary">
                       #{tag}
@@ -306,7 +280,6 @@ export default function SessionDetailScreen() {
           style={[
             styles.bottomBar,
             {
-              paddingBottom: insets.bottom + spacing.lg,
               backgroundColor: themeColors.background,
               borderTopColor: themeColors.border,
             },
@@ -324,7 +297,7 @@ export default function SessionDetailScreen() {
             }
             onPress={handleBookmarkPress}
           >
-            {bookmarked ? 'Remover dos salvos' : 'Salvar sessão'}
+            {bookmarked ? 'Remover dos salvos' : 'Salvar'}
           </Button>
         </Animated.View>
       </Screen>

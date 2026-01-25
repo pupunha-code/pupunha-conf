@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,8 +23,14 @@ export default function BookmarkedScreen() {
   const themeColors = colors[colorScheme];
 
   const { getBookmarkedSessions, getActiveEvent } = useEventStore();
-  const bookmarkedSessions = getBookmarkedSessions();
+  const [bookmarkedSessions, setBookmarkedSessions] = useState(getBookmarkedSessions());
   const activeEvent = getActiveEvent();
+
+  useFocusEffect(
+    useCallback(() => {
+      setBookmarkedSessions(getBookmarkedSessions());
+    }, [getBookmarkedSessions]),
+  );
 
   const handleSessionPress = useCallback(
     (sessionId: string) => {
@@ -62,10 +68,7 @@ export default function BookmarkedScreen() {
 
       {bookmarkedSessions.length > 0 ? (
         <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}
         >
           {bookmarkedSessions.map((session, index) => (
@@ -79,17 +82,13 @@ export default function BookmarkedScreen() {
         </ScrollView>
       ) : (
         <Animated.View entering={FadeIn.delay(200)} style={styles.emptyState}>
-          <Ionicons
-            name="bookmark-outline"
-            size={64}
-            color={themeColors.iconSecondary}
-          />
+          <Ionicons name="bookmark-outline" size={64} color={themeColors.iconSecondary} />
           <Text variant="h3" color="text" center style={styles.emptyTitle}>
-            Nenhuma sessão salva
+            Nenhuma palestra salva
           </Text>
           <Text variant="body" color="textSecondary" center style={styles.emptyDescription}>
-            Salve sessões para acessá-las rapidamente aqui. Toque no ícone de
-            favorito em qualquer sessão para salvá-la.
+            Salve palestras para acessá-las rapidamente aqui. Toque no ícone de favorito em qualquer
+            palestra para salvá-la.
           </Text>
           <Button onPress={handleExplore} style={styles.exploreButton}>
             Explorar programação
