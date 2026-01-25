@@ -8,9 +8,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Screen } from '@/components/layout';
 import { Button, Text } from '@/components/ui';
 import { SessionCard } from '@/features/sessions/SessionCard';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { colors, spacing } from '@/lib/theme';
-import { useEventStore } from '@/store';
 
 /**
  * Bookmarked sessions screen.
@@ -22,14 +22,13 @@ export default function BookmarkedScreen() {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getBookmarkedSessions, getActiveEvent } = useEventStore();
-  const [bookmarkedSessions, setBookmarkedSessions] = useState(getBookmarkedSessions());
-  const activeEvent = getActiveEvent();
+  const { activeEvent, bookmarkedSessions } = useActiveEvent();
+  const [refreshedSessions, setRefreshedSessions] = useState(bookmarkedSessions);
 
   useFocusEffect(
     useCallback(() => {
-      setBookmarkedSessions(getBookmarkedSessions());
-    }, [getBookmarkedSessions]),
+      setRefreshedSessions(bookmarkedSessions);
+    }, [bookmarkedSessions]),
   );
 
   const handleSessionPress = useCallback(
@@ -58,20 +57,20 @@ export default function BookmarkedScreen() {
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: themeColors.border }]}>
         <Text variant="h2">Sessões Salvas</Text>
-        {bookmarkedSessions.length > 0 && (
+        {refreshedSessions.length > 0 && (
           <Text variant="bodySmall" color="textSecondary" style={styles.headerSubtitle}>
-            {bookmarkedSessions.length}{' '}
-            {bookmarkedSessions.length === 1 ? 'sessão salva' : 'sessões salvas'}
+            {refreshedSessions.length}{' '}
+            {refreshedSessions.length === 1 ? 'sessão salva' : 'sessões salvas'}
           </Text>
         )}
       </View>
 
-      {bookmarkedSessions.length > 0 ? (
+      {refreshedSessions.length > 0 ? (
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}
         >
-          {bookmarkedSessions.map((session, index) => (
+          {refreshedSessions.map((session, index) => (
             <SessionCard
               key={session.id}
               session={session}
