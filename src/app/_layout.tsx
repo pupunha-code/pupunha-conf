@@ -4,6 +4,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as NavigationBar from 'expo-navigation-bar';
 import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -13,6 +14,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { useEventsQuery } from '@/hooks/useEventsQuery';
 import { useTheme } from '@/hooks/useTheme';
 import { colors } from '@/lib/theme';
 import { useEventStore } from '@/store';
@@ -25,11 +27,24 @@ SplashScreen.setOptions({
   fade: true,
 });
 
-export default function RootLayout() {
+// Create a stable query client instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      retry: 3,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+function AppInitializer() {
   const router = useRouter();
   const { colorScheme, isDark } = useTheme();
   const themeColors = colors[colorScheme];
 
+  const { data: events = [], isLoading: eventsLoading } = useEventsQuery();
   const { initializeActiveEvent, activeEventId, isInitialized, getActiveEvent, getActiveDay } = useEventStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -40,20 +55,22 @@ export default function RootLayout() {
     setIsMounted(true);
   }, []);
 
-  // Wait for Zustand persist to hydrate, then initialize
+  // Wait for Zustand persist to hydrate and events to load, then initialize
   useEffect(() => {
-    // Delay to ensure Zustand persist has hydrated from AsyncStorage
-    // This is necessary because persist middleware loads asynchronously
-    const timer = setTimeout(() => {
-      initializeActiveEvent();
-      // Mark as hydrated after a small additional delay to ensure state updates
-      setTimeout(() => {
-        setIsHydrated(true);
-      }, 50);
-    }, 150);
+    // Only initialize if we have events data and not loading
+    if (!eventsLoading && events.length > 0) {
+      // Delay to ensure Zustand persist has hydrated from AsyncStorage
+      const timer = setTimeout(() => {
+        initializeActiveEvent(events);
+        // Mark as hydrated after a small additional delay to ensure state updates
+        setTimeout(() => {
+          setIsHydrated(true);
+        }, 50);
+      }, 150);
 
-    return () => clearTimeout(timer);
-  }, [initializeActiveEvent]);
+      return () => clearTimeout(timer);
+    }
+  }, [initializeActiveEvent, events, eventsLoading]);
 
   // Update system UI colors based on theme
   useEffect(() => {
@@ -72,25 +89,17 @@ export default function RootLayout() {
     }
   }, [isInitialized]);
 
-  // Redirect based on event selection
-  // Only navigate after component is mounted, hydrated, and initialized
+  // Always show event selector - let users pick events manually
   useEffect(() => {
-    if (isMounted && isHydrated && isInitialized && !hasNavigated.current) {
+    if (isMounted && isHydrated && !hasNavigated.current) {
       hasNavigated.current = true;
       
       // Use requestAnimationFrame to ensure Stack navigator is ready
       requestAnimationFrame(() => {
-        const activeEvent = getActiveEvent();
-        const activeDay = getActiveDay();
-        // Only navigate to calendar if both event and day are available
-        if (activeEventId && activeEvent && activeDay) {
-          router.replace('/(event)/calendar');
-        } else {
-          router.replace('/');
-        }
+        router.replace('/');
       });
     }
-  }, [isMounted, isHydrated, isInitialized, activeEventId, getActiveEvent, getActiveDay, router]);
+  }, [isMounted, isHydrated, router]);
 
   const navigationTheme = isDark ? DarkTheme : DefaultTheme;
 
@@ -107,6 +116,14 @@ export default function RootLayout() {
         </ThemeProvider>
       </ActionSheetProvider>
     </GestureHandlerRootView>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppInitializer />
+    </QueryClientProvider>
   );
 }
 

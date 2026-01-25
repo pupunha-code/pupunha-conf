@@ -3,11 +3,12 @@ import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { SectionList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, SectionList, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Screen } from '@/components/layout';
 import { Card, Text } from '@/components/ui';
+import { useEventsQuery } from '@/hooks/useEventsQuery';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useEventStore } from '@/store';
@@ -22,13 +23,14 @@ export default function EventSelectorScreen() {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { events, setActiveEvent } = useEventStore();
+  const { setActiveEvent } = useEventStore();
+  const { data: events = [], isLoading, error, refetch } = useEventsQuery();
 
   const handleSelectEvent = (event: ConferenceEvent) => {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
-    setActiveEvent(event.id);
+    setActiveEvent(event.id, events);
     router.replace('/(event)/calendar');
   };
 
@@ -74,11 +76,53 @@ export default function EventSelectorScreen() {
     },
   ];
 
+  if (isLoading && events.length === 0) {
+    return (
+      <Screen safeArea="both" padded={true}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={themeColors.tint} />
+          <Text variant="body" color="textSecondary" style={styles.loadingText}>
+            Carregando eventos...
+          </Text>
+        </View>
+      </Screen>
+    );
+  }
+
+  if (error && events.length === 0) {
+    return (
+      <Screen safeArea="both" padded={true}>
+        <View style={styles.centerContainer}>
+          <Text variant="h3" color="text" style={styles.errorTitle}>
+            Ops! Algo deu errado
+          </Text>
+          <Text variant="body" color="textSecondary" style={styles.errorMessage}>
+            {error?.message || 'Erro ao carregar eventos'}
+          </Text>
+          <Card elevated style={styles.retryButton} onPress={() => refetch()}>
+            <Text variant="button" color="tint">
+              Tentar novamente
+            </Text>
+          </Card>
+        </View>
+      </Screen>
+    );
+  }
+
   return (
     <Screen safeArea="both" padded={false}>
       <SectionList
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refetch}
+            tintColor={themeColors.tint}
+            colors={[themeColors.tint]}
+          />
+        }
         ListHeaderComponent={
           <View style={styles.header}>
             <Text variant="displayMedium" color="text">
@@ -182,6 +226,27 @@ export default function EventSelectorScreen() {
 }
 
 const styles = StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  loadingText: {
+    marginTop: spacing.md,
+  },
+  errorTitle: {
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  errorMessage: {
+    textAlign: 'center',
+    marginBottom: spacing.xl,
+  },
+  retryButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxxl,
