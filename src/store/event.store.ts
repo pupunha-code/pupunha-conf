@@ -2,16 +2,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
+import { useAppStore } from '@/store/app.store';
 import { Bookmark, ConferenceEvent, EventDay, Session, Speaker } from '@/types';
+import { registerForPushNotificationsAsync } from '@/utils/registerForPushNotificationsAsync';
+import { isPast, subMinutes } from 'date-fns';
+import * as Haptics from 'expo-haptics';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
 
 interface EventStore {
-  // Data - now only for local app state, not API data
   activeEventId: string | null;
-  activeDayId: Record<string, string>; // eventId -> dayId mapping
+  activeDayId: Record<string, string>;
   bookmarks: Bookmark[];
   isInitialized: boolean;
 
-  // Event actions
   setActiveEvent: (eventId: string, events?: ConferenceEvent[]) => void;
   initializeActiveEvent: (events?: ConferenceEvent[]) => void;
 
@@ -19,7 +23,7 @@ interface EventStore {
   setActiveDay: (eventId: string, dayId: string) => void;
 
   // Bookmark actions
-  toggleBookmark: (sessionId: string, notificationId?: string) => void;
+  toggleBookmark: (sessionId: string, events: ConferenceEvent[]) => void;
   isBookmarked: (sessionId: string) => boolean;
 
   // Derived selectors - now require events to be passed in
@@ -36,18 +40,15 @@ interface EventStore {
 export const useEventStore = create(
   persist<EventStore>(
     (set, get) => ({
-      // Initial state
       activeEventId: null,
       activeDayId: {},
       bookmarks: [],
       isInitialized: false,
 
-      // Event actions
       setActiveEvent: (eventId: string, events: ConferenceEvent[] = []) => {
         const { activeDayId } = get();
         const event = events.find((e) => e.id === eventId);
 
-        // If no active day for this event, set first day
         if (event && !activeDayId[eventId] && event.days.length > 0) {
           set({
             activeEventId: eventId,
@@ -123,7 +124,6 @@ export const useEventStore = create(
         }
       },
 
-      // Day actions
       setActiveDay: (eventId: string, dayId: string) => {
         const { activeDayId } = get();
         set({
@@ -134,16 +134,54 @@ export const useEventStore = create(
         });
       },
 
-      // Bookmark actions
-      toggleBookmark: (sessionId: string, notificationId?: string) => {
+      toggleBookmark: async (sessionId: string, events: ConferenceEvent[]) => {
         const { bookmarks } = get();
         const existing = bookmarks.find((b) => b.sessionId === sessionId);
+        const { hapticEnabled } = useAppStore.getState();
 
-        if (existing) {
+        const session = get().getSessionById(events, sessionId);
+        if (!session) return;
+
+        const scheduleNotification = async (session: Session) => {
+          const fiveMinutesTillSession = subMinutes(new Date(session.startTime), 5);
+
+          if (isPast(fiveMinutesTillSession)) {
+            return undefined;
+          }
+
+          const status = await registerForPushNotificationsAsync();
+
+          if (status === 'granted') {
+            return Notifications.scheduleNotificationAsync({
+              content: {
+                title: `"${session.title}" começa em 5 minutos! ⏰`,
+                data: {
+                  url: `/session/${session.id}`,
+                },
+              },
+              trigger: {
+                type: Notifications.SchedulableTriggerInputTypes.DATE,
+                date: fiveMinutesTillSession,
+              },
+            });
+          }
+        };
+
+        if (Platform.OS !== 'web' && hapticEnabled) {
+          Haptics.selectionAsync();
+        }
+
+        if (existing != null && existing !== undefined) {
+          if (existing.notificationId) {
+            await Notifications.cancelScheduledNotificationAsync(existing.notificationId);
+          }
+          console.log('Removing bookmark for session:', sessionId);
           set({
             bookmarks: bookmarks.filter((b) => b.sessionId !== sessionId),
           });
         } else {
+          const notificationId = await scheduleNotification(session);
+          console.log('Scheduled notification ID:', notificationId);
           set({
             bookmarks: [
               ...bookmarks,

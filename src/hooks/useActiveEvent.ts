@@ -10,6 +10,7 @@ export function useActiveEvent() {
   const {
     activeEventId,
     activeDayId,
+    bookmarks,
     setActiveEvent,
     setActiveDay,
     getActiveEvent,
@@ -21,7 +22,6 @@ export function useActiveEvent() {
     getSessionById,
     getAllSpeakers,
     toggleBookmark,
-    isBookmarked,
   } = useEventStore();
 
   // Memoized selectors with events data
@@ -36,6 +36,8 @@ export function useActiveEvent() {
   const getSpeaker = (speakerId: string) => getSpeakerById(events, speakerId);
   const getSession = (sessionId: string) => getSessionById(events, sessionId);
   const setActiveEventWithEvents = (eventId: string) => setActiveEvent(eventId, events);
+  const toggleBookmarkWithEvents = (sessionId: string) => toggleBookmark(sessionId, events);
+  const isBookmarked = (sessionId: string) => bookmarks.some((b) => b.sessionId === sessionId);
 
   return {
     // Data
@@ -55,7 +57,7 @@ export function useActiveEvent() {
     // Actions
     setActiveEvent: setActiveEventWithEvents,
     setActiveDay,
-    toggleBookmark,
+    toggleBookmark: toggleBookmarkWithEvents,
     refetch,
 
     // Selectors with events
