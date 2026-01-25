@@ -4,22 +4,16 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { Bookmark, ConferenceEvent, EventDay, Session, Speaker } from '@/types';
 
-import { mockEvents } from './event.mock';
-
 interface EventStore {
-  // Data
-  events: ConferenceEvent[];
+  // Data - now only for local app state, not API data
   activeEventId: string | null;
   activeDayId: Record<string, string>; // eventId -> dayId mapping
   bookmarks: Bookmark[];
-
-  // Loading states
-  isLoading: boolean;
   isInitialized: boolean;
 
   // Event actions
-  setActiveEvent: (eventId: string) => void;
-  initializeActiveEvent: () => void;
+  setActiveEvent: (eventId: string, events?: ConferenceEvent[]) => void;
+  initializeActiveEvent: (events?: ConferenceEvent[]) => void;
 
   // Day actions
   setActiveDay: (eventId: string, dayId: string) => void;
@@ -28,31 +22,29 @@ interface EventStore {
   toggleBookmark: (sessionId: string, notificationId?: string) => void;
   isBookmarked: (sessionId: string) => boolean;
 
-  // Derived selectors
-  getActiveEvent: () => ConferenceEvent | undefined;
-  getActiveDay: () => EventDay | undefined;
-  getSessionsForActiveDay: () => Session[];
-  getBookmarkedSessions: () => Session[];
-  getSessionsBySpeakerId: (speakerId: string) => Session[];
-  getSpeakerById: (speakerId: string) => Speaker | undefined;
-  getSessionById: (sessionId: string) => Session | undefined;
-  getAllSpeakers: () => Speaker[];
+  // Derived selectors - now require events to be passed in
+  getActiveEvent: (events: ConferenceEvent[]) => ConferenceEvent | undefined;
+  getActiveDay: (events: ConferenceEvent[]) => EventDay | undefined;
+  getSessionsForActiveDay: (events: ConferenceEvent[]) => Session[];
+  getBookmarkedSessions: (events: ConferenceEvent[]) => Session[];
+  getSessionsBySpeakerId: (events: ConferenceEvent[], speakerId: string) => Session[];
+  getSpeakerById: (events: ConferenceEvent[], speakerId: string) => Speaker | undefined;
+  getSessionById: (events: ConferenceEvent[], sessionId: string) => Session | undefined;
+  getAllSpeakers: (events: ConferenceEvent[]) => Speaker[];
 }
 
 export const useEventStore = create(
   persist<EventStore>(
     (set, get) => ({
       // Initial state
-      events: mockEvents,
       activeEventId: null,
       activeDayId: {},
       bookmarks: [],
-      isLoading: false,
       isInitialized: false,
 
       // Event actions
-      setActiveEvent: (eventId: string) => {
-        const { events, activeDayId } = get();
+      setActiveEvent: (eventId: string, events: ConferenceEvent[] = []) => {
+        const { activeDayId } = get();
         const event = events.find((e) => e.id === eventId);
 
         // If no active day for this event, set first day
@@ -69,8 +61,8 @@ export const useEventStore = create(
         }
       },
 
-      initializeActiveEvent: () => {
-        const { events, activeEventId, isInitialized, activeDayId } = get();
+      initializeActiveEvent: (events: ConferenceEvent[] = []) => {
+        const { activeEventId, isInitialized, activeDayId } = get();
 
         // If already initialized and has an active event, ensure day is set
         if (isInitialized && activeEventId) {
@@ -170,14 +162,14 @@ export const useEventStore = create(
       },
 
       // Derived selectors
-      getActiveEvent: () => {
-        const { events, activeEventId } = get();
+      getActiveEvent: (events: ConferenceEvent[]) => {
+        const { activeEventId } = get();
         return events.find((e) => e.id === activeEventId);
       },
 
-      getActiveDay: () => {
+      getActiveDay: (events: ConferenceEvent[]) => {
         const { activeEventId, activeDayId } = get();
-        const event = get().getActiveEvent();
+        const event = get().getActiveEvent(events);
 
         if (!event || !activeEventId) return undefined;
 
@@ -185,14 +177,14 @@ export const useEventStore = create(
         return event.days.find((d) => d.id === dayId);
       },
 
-      getSessionsForActiveDay: () => {
-        const day = get().getActiveDay();
+      getSessionsForActiveDay: (events: ConferenceEvent[]) => {
+        const day = get().getActiveDay(events);
         return day?.sessions || [];
       },
 
-      getBookmarkedSessions: () => {
+      getBookmarkedSessions: (events: ConferenceEvent[]) => {
         const { bookmarks } = get();
-        const event = get().getActiveEvent();
+        const event = get().getActiveEvent(events);
 
         if (!event) return [];
 
@@ -213,8 +205,8 @@ export const useEventStore = create(
         );
       },
 
-      getSessionsBySpeakerId: (speakerId: string) => {
-        const event = get().getActiveEvent();
+      getSessionsBySpeakerId: (events: ConferenceEvent[], speakerId: string) => {
+        const event = get().getActiveEvent(events);
         if (!event) return [];
 
         const sessions: Session[] = [];
@@ -232,13 +224,13 @@ export const useEventStore = create(
         );
       },
 
-      getSpeakerById: (speakerId: string) => {
-        const event = get().getActiveEvent();
+      getSpeakerById: (events: ConferenceEvent[], speakerId: string) => {
+        const event = get().getActiveEvent(events);
         return event?.speakers.find((s) => s.id === speakerId);
       },
 
-      getSessionById: (sessionId: string) => {
-        const event = get().getActiveEvent();
+      getSessionById: (events: ConferenceEvent[], sessionId: string) => {
+        const event = get().getActiveEvent(events);
         if (!event) return undefined;
 
         for (const day of event.days) {
@@ -248,8 +240,8 @@ export const useEventStore = create(
         return undefined;
       },
 
-      getAllSpeakers: () => {
-        const event = get().getActiveEvent();
+      getAllSpeakers: (events: ConferenceEvent[]) => {
+        const event = get().getActiveEvent(events);
         return event?.speakers || [];
       },
     }),
@@ -261,7 +253,7 @@ export const useEventStore = create(
         activeDayId: state.activeDayId,
         bookmarks: state.bookmarks,
         isInitialized: state.isInitialized,
-      }) as EventStore,
+      }),
     },
   ),
 );

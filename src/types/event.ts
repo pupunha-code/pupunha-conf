@@ -22,6 +22,7 @@ export interface ConferenceEvent {
   days: EventDay[];
   speakers: Speaker[];
   imageUrl?: string;
+  gallery?: string[];
 }
 
 export interface EventState {
