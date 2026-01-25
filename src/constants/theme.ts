@@ -9,7 +9,6 @@ import { Platform } from 'react-native';
 // Pupunha Code brand colors
 const pupunhaOrange = '#e26228';
 const matteBlack = '#1A1A1A';
-const black = '#000000';
 
 export const Colors = {
   light: {

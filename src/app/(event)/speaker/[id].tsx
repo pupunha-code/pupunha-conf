@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
@@ -13,6 +14,7 @@ import { Screen } from '@/components/layout';
 import { Button, Card, Text } from '@/components/ui';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
+import { useAppStore } from '@/store/app.store';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { Session } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
@@ -195,9 +197,25 @@ interface SessionCardProps {
 function SessionCard({ session, index, onPress }: SessionCardProps) {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
+  const { useLocalTimezone } = useAppStore();
 
-  const startTime = format(new Date(session.startTime), 'HH:mm', { locale: ptBR });
-  const endTime = format(new Date(session.endTime), 'HH:mm', { locale: ptBR });
+  // Format times based on timezone preference
+  // API times are in UTC format but represent local Brazil times
+  const formatTime = (timeString: string) => {
+    if (useLocalTimezone) {
+      // Use local device timezone - this will convert UTC to device's local time
+      return format(new Date(timeString), 'HH:mm', { locale: ptBR });
+    } else {
+      // Treat the UTC time as if it were a local time (ignore timezone)
+      // This strips the timezone and treats 14:00Z as 14:00 local
+      const utcDate = new Date(timeString);
+      const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+      return format(localDate, 'HH:mm', { locale: ptBR });
+    }
+  };
+
+  const startTime = formatTime(session.startTime);
+  const endTime = formatTime(session.endTime);
 
   return (
     <Pressable onPress={onPress}>

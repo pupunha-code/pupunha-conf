@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
@@ -13,6 +14,7 @@ import { Button, Text } from '@/components/ui';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
+import { useAppStore } from '@/store/app.store';
 import { SessionType, Speaker } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
 
@@ -94,6 +96,7 @@ export default function SessionDetailScreen() {
   const themeColors = colors[colorScheme];
 
   const { getSession, isBookmarked, toggleBookmark, getSpeaker } = useActiveEvent();
+  const { useLocalTimezone } = useAppStore();
   const session = getSession(id);
 
   // Compute bookmark status using the built-in method
@@ -111,6 +114,21 @@ export default function SessionDetailScreen() {
       </Screen>
     );
   }
+
+  // Format times based on timezone preference
+  // API times are in UTC format but represent local Brazil times
+  const formatTime = (timeString: string, formatStr: string) => {
+    if (useLocalTimezone) {
+      // Use local device timezone - this will convert UTC to device's local time
+      return format(new Date(timeString), formatStr, { locale: ptBR });
+    } else {
+      // Treat the UTC time as if it were a local time (ignore timezone)
+      // This strips the timezone and treats 14:00Z as 14:00 local
+      const utcDate = new Date(timeString);
+      const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+      return format(localDate, formatStr, { locale: ptBR });
+    }
+  };
 
   const startTime = new Date(session.startTime);
   const endTime = new Date(session.endTime);
@@ -191,15 +209,15 @@ export default function SessionDetailScreen() {
             <View style={styles.metaRow}>
               <Ionicons name="calendar-outline" size={20} color={themeColors.icon} />
               <Text variant="body" color="text">
-                {format(startTime, "EEEE, d 'de' MMMM", { locale: ptBR })}
+                {formatTime(session.startTime, "EEEE, d 'de' MMMM")}
               </Text>
             </View>
 
             <View style={styles.metaRow}>
               <Ionicons name="time-outline" size={20} color={themeColors.icon} />
               <Text variant="body" color="text">
-                {format(startTime, 'HH:mm', { locale: ptBR })} -{' '}
-                {format(endTime, 'HH:mm', { locale: ptBR })}
+                {formatTime(session.startTime, 'HH:mm')} -{' '}
+                {formatTime(session.endTime, 'HH:mm')}
               </Text>
             </View>
 

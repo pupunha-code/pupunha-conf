@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,25 +22,15 @@ export default function BookmarkedScreen() {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { activeEvent, bookmarkedSessions } = useActiveEvent();
-  const [refreshedSessions, setRefreshedSessions] = useState(bookmarkedSessions);
+  const { activeEvent, bookmarkedSessions, isLoading, refetch } = useActiveEvent();
 
-  useFocusEffect(
-    useCallback(() => {
-      setRefreshedSessions(bookmarkedSessions);
-    }, [bookmarkedSessions]),
-  );
+  const handleSessionPress = (sessionId: string) => {
+    router.push(`/(event)/session/${sessionId}`);
+  };
 
-  const handleSessionPress = useCallback(
-    (sessionId: string) => {
-      router.push(`/(event)/session/${sessionId}`);
-    },
-    [router],
-  );
-
-  const handleExplore = useCallback(() => {
+  const handleExplore = () => {
     router.push('/(event)/calendar');
-  }, [router]);
+  };
 
   if (!activeEvent) {
     return (
@@ -57,20 +47,28 @@ export default function BookmarkedScreen() {
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: themeColors.border }]}>
         <Text variant="h2">Sessões Salvas</Text>
-        {refreshedSessions.length > 0 && (
+        {bookmarkedSessions.length > 0 && (
           <Text variant="bodySmall" color="textSecondary" style={styles.headerSubtitle}>
-            {refreshedSessions.length}{' '}
-            {refreshedSessions.length === 1 ? 'sessão salva' : 'sessões salvas'}
+            {bookmarkedSessions.length}{' '}
+            {bookmarkedSessions.length === 1 ? 'sessão salva' : 'sessões salvas'}
           </Text>
         )}
       </View>
 
-      {refreshedSessions.length > 0 ? (
+      {bookmarkedSessions.length > 0 ? (
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={refetch}
+              tintColor={themeColors.tint}
+              colors={[themeColors.tint]}
+            />
+          }
         >
-          {refreshedSessions.map((session, index) => (
+          {bookmarkedSessions.map((session, index) => (
             <SessionCard
               key={session.id}
               session={session}

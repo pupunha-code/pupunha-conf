@@ -32,7 +32,6 @@ export default function EventTabLayout() {
     }
   };
 
-  // Use glass effect on iOS 26+ (Liquid Glass)
   const useGlassTabBar = Platform.OS === 'ios' && isLiquidGlassAvailable();
 
   return (
@@ -95,11 +94,7 @@ export default function EventTabLayout() {
         options={{
           title: 'Palestrantes',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              name={focused ? 'people' : 'people-outline'}
-              color={color}
-              focused={focused}
-            />
+            <TabIcon name={focused ? 'people' : 'people-outline'} color={color} focused={focused} />
           ),
         }}
       />

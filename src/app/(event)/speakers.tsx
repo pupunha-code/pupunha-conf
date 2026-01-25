@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { memo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -119,7 +119,7 @@ export default function SpeakersScreen() {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { activeEvent, allSpeakers } = useActiveEvent();
+  const { activeEvent, allSpeakers, isLoading, refetch } = useActiveEvent();
   const speakers = allSpeakers;
 
   if (!activeEvent) {
@@ -146,6 +146,14 @@ export default function SpeakersScreen() {
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refetch}
+            tintColor={themeColors.tint}
+            colors={[themeColors.tint]}
+          />
+        }
       >
         {speakers.map((speaker, index) => (
           <SpeakerCard key={speaker.id} speaker={speaker} index={index} />

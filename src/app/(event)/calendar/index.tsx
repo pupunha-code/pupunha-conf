@@ -3,8 +3,8 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useCallback, useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   FadeInRight,
@@ -20,6 +20,7 @@ import { SessionCard } from '@/features/sessions/SessionCard';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
+import { useAppStore } from '@/store/app.store';
 import { EventDay, Session } from '@/types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -114,10 +115,28 @@ export default function CalendarScreen() {
     activeEventId,
     activeDayId,
     setActiveDay,
+    isLoading,
+    refetch,
   } = useActiveEvent();
+  const { useLocalTimezone } = useAppStore();
 
   const days = activeEvent?.days || [];
   const hasMultipleDays = days.length > 1;
+
+  // Format times based on timezone preference
+  // API times are in UTC format but represent local Brazil times
+  const formatTime = (timeString: string, formatStr: string) => {
+    if (useLocalTimezone) {
+      // Use local device timezone - this will convert UTC to device's local time
+      return format(new Date(timeString), formatStr, { locale: ptBR });
+    } else {
+      // Treat the UTC time as if it were a local time (ignore timezone)
+      // This strips the timezone and treats 14:00Z as 14:00 local
+      const utcDate = new Date(timeString);
+      const localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+      return format(localDate, formatStr, { locale: ptBR });
+    }
+  };
 
   // Group sessions by time slot for better display
   const groupedSessions = useMemo(() => {
@@ -144,25 +163,19 @@ export default function CalendarScreen() {
       .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
   }, [activeDay]);
 
-  const handleDayPress = useCallback(
-    (dayId: string) => {
-      if (activeEventId) {
-        setActiveDay(activeEventId, dayId);
-      }
-    },
-    [activeEventId, setActiveDay],
-  );
+  const handleDayPress = (dayId: string) => {
+    if (activeEventId) {
+      setActiveDay(activeEventId, dayId);
+    }
+  };
 
-  const handleSessionPress = useCallback(
-    (sessionId: string) => {
-      router.push(`/(event)/session/${sessionId}`);
-    },
-    [router],
-  );
+  const handleSessionPress = (sessionId: string) => {
+    router.push(`/(event)/session/${sessionId}`);
+  };
 
-  const handleChangeEvent = useCallback(() => {
+  const handleChangeEvent = () => {
     router.push('/');
-  }, [router]);
+  };
 
   if (!activeEvent || !activeDay) {
     return (
@@ -218,10 +231,17 @@ export default function CalendarScreen() {
           { paddingBottom: insets.bottom + 100 },
         ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={refetch}
+            tintColor={themeColors.tint}
+            colors={[themeColors.tint]}
+          />
+        }
       >
         {groupedSessions.map(({ time, sessions }, groupIndex) => {
-          const startTime = new Date(time);
-          const timeLabel = format(startTime, 'HH:mm', { locale: ptBR });
+          const timeLabel = formatTime(time, 'HH:mm');
 
           return (
             <View key={time} style={styles.timeGroup}>
