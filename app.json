@@ -52,6 +52,15 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "root": "./src/app"
+      },
+      "expo-navigation-bar": {},
+      "eas": {
+        "projectId": "3ac67d0d-f637-498f-88a7-36738f84a715"
+      }
     }
   }
 }

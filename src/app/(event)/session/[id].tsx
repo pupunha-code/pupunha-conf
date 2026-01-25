@@ -15,7 +15,6 @@ import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useEventStore } from '@/store';
 import { SessionType, Speaker } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
-import { useState } from 'react';
 
 const getSessionTypeLabel = (type: SessionType): string => {
   const labels: Record<SessionType, string> = {
@@ -94,9 +93,11 @@ export default function SessionDetailScreen() {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getSessionById, isBookmarked, toggleBookmark, getSpeakerById } = useEventStore();
-  const [localBookmarked, setLocalBookmarked] = useState(isBookmarked(id));
+  const { getSessionById, isBookmarked, toggleBookmark, getSpeakerById, bookmarks } = useEventStore();
   const session = getSessionById(id);
+  
+  // Compute bookmark status reactively using the bookmarks array
+  const isSessionBookmarked = bookmarks.some(bookmark => bookmark.sessionId === id);
 
   if (!session) {
     return (
@@ -111,7 +112,6 @@ export default function SessionDetailScreen() {
     );
   }
 
-  const bookmarked = isBookmarked(session.id);
   const startTime = new Date(session.startTime);
   const endTime = new Date(session.endTime);
 
@@ -120,8 +120,6 @@ export default function SessionDetailScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     toggleBookmark(session.id);
-    setLocalBookmarked(!localBookmarked);
-    //atualizar estado do botão de bookmark sem precisar de um useState ou useEffect?
   };
 
   const handleSpeakerPress = (speakerId: string) => {
@@ -157,9 +155,9 @@ export default function SessionDetailScreen() {
               style={styles.headerButton}
             >
               <Ionicons
-                name={localBookmarked ? 'bookmark' : 'bookmark-outline'}
+                name={isSessionBookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={24}
-                color={localBookmarked ? themeColors.tint : themeColors.icon}
+                color={isSessionBookmarked ? themeColors.tint : themeColors.icon}
               />
             </TouchableOpacity>
           ),
@@ -286,18 +284,18 @@ export default function SessionDetailScreen() {
           ]}
         >
           <Button
-            variant={bookmarked ? 'secondary' : 'primary'}
+            variant={isSessionBookmarked ? 'secondary' : 'primary'}
             fullWidth
             leftIcon={
               <Ionicons
-                name={bookmarked ? 'bookmark' : 'bookmark-outline'}
+                name={isSessionBookmarked ? 'bookmark' : 'bookmark-outline'}
                 size={20}
-                color={bookmarked ? themeColors.text : themeColors.textInverse}
+                color={isSessionBookmarked ? themeColors.text : themeColors.textInverse}
               />
             }
             onPress={handleBookmarkPress}
           >
-            {bookmarked ? 'Remover dos salvos' : 'Salvar'}
+            {isSessionBookmarked ? 'Remover dos salvos' : 'Salvar'}
           </Button>
         </Animated.View>
       </Screen>

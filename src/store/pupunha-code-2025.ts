@@ -10,15 +10,13 @@ const createDateTime = (dateStr: string, timeStr: string): string => {
   return date.toISOString();
 };
 
-// Speakers
 const speakers: Speaker[] = [
   {
     id: 'lorena-montes',
     name: 'Lorena Montes',
     title: 'Engineering Manager',
     company: 'ArcoTech',
-    bio:
-      'Engineering Manager com foco em desenvolvimento de pessoas e crescimento de carreira em tecnologia.',
+    bio: 'Engineering Manager com foco em desenvolvimento de pessoas e crescimento de carreira em tecnologia.',
     links: {
       github: 'https://github.com/lorenalgm',
       linkedin: 'https://www.linkedin.com/in/lorenagmontes/',
@@ -29,8 +27,7 @@ const speakers: Speaker[] = [
     name: 'Caio Quintas',
     title: 'Tech Lead',
     company: 'Turing / Zappis',
-    bio:
-      'Tech Lead e fundador, com experiência em arquitetura de software e crescimento de produtos pós-MVP.',
+    bio: 'Tech Lead e fundador, com experiência em arquitetura de software e crescimento de produtos pós-MVP.',
     links: {
       github: 'https://github.com/Quinntas',
       linkedin: 'https://www.linkedin.com/in/caio-quintas/',
@@ -41,8 +38,7 @@ const speakers: Speaker[] = [
     name: 'Luma Góes',
     title: 'Software Engineer',
     company: 'ArcoTech / Thetaharpia',
-    bio:
-      'Software Engineer e fundadora, com foco em arquitetura orientada à necessidade e usabilidade.',
+    bio: 'Software Engineer e fundadora, com foco em arquitetura orientada à necessidade e usabilidade.',
     links: {
       github: 'https://github.com/lumamontes',
       linkedin: 'https://www.linkedin.com/in/lumamontes/',
@@ -53,8 +49,7 @@ const speakers: Speaker[] = [
     name: 'Pedro Viana',
     title: 'Software Engineer',
     company: 'Thetaharpia',
-    bio:
-      'Engenheiro de software com foco em arquitetura e infraestrutura orientadas a problemas reais.',
+    bio: 'Engenheiro de software com foco em arquitetura e infraestrutura orientadas a problemas reais.',
     links: {
       github: 'https://github.com/pedrovian4',
       linkedin: 'https://www.linkedin.com/in/pedro-viana/',
@@ -70,8 +65,7 @@ const speakers: Speaker[] = [
     id: 'mateus-gurgel',
     name: 'Mateus Gurgel',
     title: 'Software Engineer',
-    bio:
-      'Engenheiro de software com foco em LLMs, sistemas agênticos e machine learning aplicado.',
+    bio: 'Engenheiro de software com foco em LLMs, sistemas agênticos e machine learning aplicado.',
     links: {
       github: 'https://github.com/mateusgurgel',
     },
@@ -111,10 +105,8 @@ const day1Sessions: Session[] = [
   },
   {
     id: 'licoes-software',
-    title:
-      'Lições de software: arquitetura e infraestrutura orientadas à necessidade',
-    description:
-      'Como decisões de arquitetura devem partir do problema real e da usabilidade.',
+    title: 'Lições de software: arquitetura e infraestrutura orientadas à necessidade',
+    description: 'Como decisões de arquitetura devem partir do problema real e da usabilidade.',
     startTime: createDateTime(day1Date, '15:15'),
     endTime: createDateTime(day1Date, '15:45'),
     speakers: ['luma-goes', 'pedro-viana'],
@@ -131,8 +123,7 @@ const day1Sessions: Session[] = [
   },
   {
     id: 'brag-document',
-    title:
-      'Criando um brag document: a importância na visibilidade da sua carreira em tech',
+    title: 'Criando um brag document: a importância na visibilidade da sua carreira em tech',
     description:
       'Como documentar conquistas, aprendizados e impacto para crescimento profissional.',
     startTime: createDateTime(day1Date, '16:00'),
@@ -143,8 +134,7 @@ const day1Sessions: Session[] = [
   {
     id: 'pos-mvp',
     title: 'Pós-MVP: quando a gambiarra deixa de ser aceitável',
-    description:
-      'Desafios de escalar software após o MVP e evitar caos técnico.',
+    description: 'Desafios de escalar software após o MVP e evitar caos técnico.',
     startTime: createDateTime(day1Date, '16:30'),
     endTime: createDateTime(day1Date, '17:00'),
     speakers: ['caio-quintas'],
@@ -152,10 +142,8 @@ const day1Sessions: Session[] = [
   },
   {
     id: 'sistemas-agenticos',
-    title:
-      'Sistemas Agênticos e Machine Learning: o que são e como aplicar?',
-    description:
-      'Introdução a agentes baseados em LLMs e machine learning clássico aplicado.',
+    title: 'Sistemas Agênticos e Machine Learning: o que são e como aplicar?',
+    description: 'Introdução a agentes baseados em LLMs e machine learning clássico aplicado.',
     startTime: createDateTime(day1Date, '17:00'),
     endTime: createDateTime(day1Date, '17:30'),
     speakers: ['mateus-gurgel'],

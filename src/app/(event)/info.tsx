@@ -250,8 +250,15 @@ export default function InfoScreen() {
             <SettingsRow
               icon="logo-github"
               label="Código fonte"
-              value="github.com/pupunha-conf"
-              onPress={() => handleOpenLink('https://github.com')}
+              value="github.com/pupunha-code/pupunha-conf"
+              onPress={() => handleOpenLink('https://github.com/pupunha-code/pupunha-conf')}
+              index={rowIndex++}
+            />
+            <SettingsRow
+              icon="logo-discord"
+              label="Discord"
+              value="Junte-se à comunidade"
+              onPress={() => handleOpenLink('https://discord.com/invite/eek5VsPYGt')}
               index={rowIndex++}
             />
             <SettingsRow
