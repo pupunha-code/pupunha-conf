@@ -93,9 +93,9 @@ export default function SessionDetailScreen() {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getSession, isBookmarked, toggleBookmark, getSpeaker, bookmarkedSessions } = useActiveEvent();
+  const { getSession, isBookmarked, toggleBookmark, getSpeaker } = useActiveEvent();
   const session = getSession(id);
-  
+
   // Compute bookmark status using the built-in method
   const isSessionBookmarked = isBookmarked(id);
 
@@ -116,9 +116,6 @@ export default function SessionDetailScreen() {
   const endTime = new Date(session.endTime);
 
   const handleBookmarkPress = () => {
-    if (hapticEnabled) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
     toggleBookmark(session.id);
   };
 
