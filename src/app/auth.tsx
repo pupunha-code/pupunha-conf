@@ -18,15 +18,16 @@ export default function AuthCallbackScreen() {
 
   useEffect(() => {
     const handleAuthCallback = async () => {
-      try {
-        // Get the current URL with OAuth tokens
-        const url = await Linking.getInitialURL();
-        console.log('Auth screen received URL:', url);
+      console.log('Auth screen loading, development build detected...');
+      
+      // For development builds, handle URL-based OAuth callback
+      const handleURL = async (url: string) => {
+        console.log('Processing auth callback URL:', url);
         
         if (url && (url.includes('#access_token=') || url.includes('?access_token='))) {
-          console.log('Processing OAuth tokens in auth screen...');
+          console.log('Found OAuth tokens in URL');
           
-          // Extract the hash/query part
+          // Extract tokens from URL
           const [, hash] = url.split('#');
           const [, query] = url.split('?');
           
@@ -41,22 +42,69 @@ export default function AuthCallbackScreen() {
               refresh_token: refreshToken || '',
             });
             
-            console.log('Session set successfully, navigating to feed...');
+            console.log('✅ Session set successfully!');
+            router.replace('/(event)/feed');
+            return;
           }
         }
         
-        // Navigate to feed after processing (or just a delay if no tokens)
-        setTimeout(() => {
-          router.replace('/(event)/feed');
-        }, 1500);
+        // If no tokens, fall back to session polling
+        console.log('No tokens found, starting session polling...');
+        startSessionPolling();
+      };
+      
+      const startSessionPolling = async () => {
+        let attempts = 0;
+        const maxAttempts = 20; // 10 seconds
         
-      } catch (error) {
-        console.error('Auth callback error:', error);
-        // Navigate to feed anyway after delay
-        setTimeout(() => {
-          router.replace('/(event)/feed');
-        }, 1500);
-      }
+        const checkSession = async () => {
+          attempts++;
+          console.log(`Session polling attempt ${attempts}/${maxAttempts}...`);
+          
+          try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (session?.user) {
+              console.log('✅ Found session! User is authenticated:', session.user.email);
+              router.replace('/(event)/feed');
+              return true;
+            }
+            
+            if (attempts < maxAttempts) {
+              setTimeout(checkSession, 500);
+            } else {
+              console.log('❌ Max attempts reached, no session found');
+              router.replace('/(event)/feed');
+            }
+            
+          } catch (error) {
+            console.error('Session check error:', error);
+            if (attempts < maxAttempts) {
+              setTimeout(checkSession, 500);
+            } else {
+              router.replace('/(event)/feed');
+            }
+          }
+        };
+        
+        checkSession();
+      };
+      
+      // Check initial URL
+      Linking.getInitialURL().then((url) => {
+        if (url) {
+          handleURL(url);
+        } else {
+          startSessionPolling();
+        }
+      });
+      
+      // Listen for URL changes
+      const subscription = Linking.addEventListener('url', (event) => {
+        handleURL(event.url);
+      });
+      
+      return () => subscription?.remove();
     };
 
     handleAuthCallback();
