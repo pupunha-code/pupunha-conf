@@ -1,9 +1,5 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as NavigationBar from 'expo-navigation-bar';
 import * as Notifications from 'expo-notifications';
@@ -12,13 +8,15 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, Alert } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useEventsQuery } from '@/hooks/useEventsQuery';
 import { useTheme } from '@/hooks/useTheme';
 import { colors } from '@/lib/theme';
+import { analytics } from '@/services/analytics.service';
 import { useEventStore } from '@/store';
+import { useAuthStore } from '@/store/auth.store';
 
 // Keep splash screen visible while we initialize
 SplashScreen.preventAutoHideAsync();
@@ -55,15 +53,20 @@ function AppInitializer() {
   const themeColors = colors[colorScheme];
 
   const { data: events = [], isLoading: eventsLoading } = useEventsQuery();
-  const { initializeActiveEvent, activeEventId, isInitialized, getActiveEvent, getActiveDay } = useEventStore();
+  const { initializeActiveEvent, activeEventId, isInitialized, getActiveEvent, getActiveDay } =
+    useEventStore();
+  const { initialize: initAuth } = useAuthStore();
   const [isMounted, setIsMounted] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const hasNavigated = useRef(false);
 
-  // Mark component as mounted after first render
+  // Mark component as mounted after first render and initialize analytics and auth
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    analytics.initialize();
+    initAuth();
+  }, [initAuth]);
+
 
   // Wait for Zustand persist to hydrate and events to load, then initialize
   useEffect(() => {
@@ -98,18 +101,6 @@ function AppInitializer() {
       SplashScreen.hideAsync();
     }
   }, [isInitialized]);
-
-  // Always show event selector - let users pick events manually
-  useEffect(() => {
-    if (isMounted && isHydrated && !hasNavigated.current) {
-      hasNavigated.current = true;
-      
-      // Use requestAnimationFrame to ensure Stack navigator is ready
-      requestAnimationFrame(() => {
-        router.replace('/');
-      });
-    }
-  }, [isMounted, isHydrated, router]);
 
   const navigationTheme = isDark ? DarkTheme : DefaultTheme;
 
