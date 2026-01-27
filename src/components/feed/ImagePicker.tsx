@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import * as ImagePickerExpo from 'expo-image-picker';
-import * as Haptics from 'expo-haptics';
 import { useCallback } from 'react';
 import {
   Alert,
@@ -44,7 +44,7 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
       }
 
       const result = await ImagePickerExpo.launchImageLibraryAsync({
-        mediaTypes: ImagePickerExpo.MediaType.Images,
+        mediaTypes: ImagePickerExpo.MediaTypeOptions.Images,
         quality: 0.8,
         allowsMultipleSelection: true,
         selectionLimit: maxImages - images.length,

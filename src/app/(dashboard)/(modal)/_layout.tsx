@@ -13,6 +13,15 @@ export default function ModalLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen 
+        name="image-viewer/[index]" 
+        options={{
+          presentation: 'fullScreenModal',
+          animation: 'fade',
+          gestureEnabled: true,
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

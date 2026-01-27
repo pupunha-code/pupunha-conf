@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
@@ -19,6 +20,7 @@ interface FeedPostCardProps {
 }
 
 export function FeedPostCard({ post }: FeedPostCardProps) {
+  const router = useRouter();
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
   const { user } = useAuthStore();
@@ -110,8 +112,11 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
         <ImageGrid 
           imageUrls={post.image_urls}
           onImagePress={(index) => {
-            // TODO: Open image gallery/lightbox at specific index
-            console.log('Open image at index:', index);
+            if (hapticEnabled) {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
+            const imagesParam = encodeURIComponent(JSON.stringify(post.image_urls));
+            router.push(`/(dashboard)/(modal)/image-viewer/${index}?images=${imagesParam}`);
           }}
         />
       )}
