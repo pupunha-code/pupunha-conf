@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -10,7 +11,6 @@ import {
   View,
 } from 'react-native';
 
-import { CreatePostModal } from '@/components/feed/CreatePostModal';
 import { FeedPostCard } from '@/components/feed/FeedPostCard';
 import { LoginPrompt } from '@/components/feed/LoginPrompt';
 import { Screen } from '@/components/layout/Screen';
@@ -23,13 +23,13 @@ import { useFeedStore } from '@/store/feed.store';
 import { FeedPost } from '@/types/feed';
 
 export default function FeedScreen() {
+  const router = useRouter();
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
   const { isAuthenticated, initialize: initAuth } = useAuthStore();
   const { posts, isLoading, fetchPosts, subscribeToUpdates, error, clearFeed } = useFeedStore();
   const { activeEvent } = useActiveEvent();
 
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function FeedScreen() {
   };
 
   const handleCreatePost = () => {
-    setShowCreateModal(true);
+      router.push('/(dashboard)/(modal)/create-post');
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -161,8 +161,6 @@ export default function FeedScreen() {
           />
         )}
       </View>
-
-      <CreatePostModal visible={showCreateModal} onClose={() => setShowCreateModal(false)} />
     </Screen>
   );
 }

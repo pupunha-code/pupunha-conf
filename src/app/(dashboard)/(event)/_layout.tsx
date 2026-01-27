@@ -22,7 +22,7 @@ function TabIcon({ name, color }: TabIconProps) {
  * Event-scoped tab layout.
  * All screens within this layout are scoped to the active event.
  */
-export default function EventTabLayout() {
+export default function EventTabsLayout() {
   const { colorScheme, isDark, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
