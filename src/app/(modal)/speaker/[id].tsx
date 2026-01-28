@@ -9,7 +9,7 @@ import { Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View } f
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Screen } from '@/components/layout';
+import { Header, Screen } from '@/components/layout';
 import { Button, Card, Text } from '@/components/ui';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
@@ -57,26 +57,15 @@ export default function SpeakerDetailScreen() {
 
   return (
     <>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          headerTransparent: Platform.OS === 'ios',
-          headerBlurEffect: colorScheme === 'dark' ? 'dark' : 'light',
-          title: '',
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => router.back()}
-              activeOpacity={0.6}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              style={styles.headerButton}
-            >
-              <Ionicons name="arrow-back" size={24} color={themeColors.icon} />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-
       <Screen safeArea="none" padded={false}>
+        <Header
+          title=""
+          left={
+            <TouchableOpacity onPress={() => router.back()}>
+              <Ionicons name="chevron-back" size={24} color={themeColors.icon} />
+            </TouchableOpacity>
+          }
+        />
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}

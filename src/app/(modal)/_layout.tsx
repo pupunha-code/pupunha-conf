@@ -34,7 +34,7 @@ export default function ModalLayout() {
       <Stack.Screen
         name="speaker/[id]"
         options={{
-          presentation: 'modal',
+          presentation: Platform.OS === 'ios' ? 'formSheet' : 'modal',
           animation: 'slide_from_bottom',
           gestureEnabled: true,
           headerShown: false,
