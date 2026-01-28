@@ -24,14 +24,7 @@ interface SettingsRowProps {
   index: number;
 }
 
-function SettingsRow({
-  icon,
-  label,
-  value,
-  onPress,
-  rightElement,
-  index,
-}: SettingsRowProps) {
+function SettingsRow({ icon, label, value, onPress, rightElement, index }: SettingsRowProps) {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
@@ -45,12 +38,7 @@ function SettingsRow({
   };
 
   const content = (
-    <View
-      style={[
-        styles.settingsRow,
-        { backgroundColor: themeColors.cardBackground },
-      ]}
-    >
+    <View style={[styles.settingsRow, { backgroundColor: themeColors.cardBackground }]}>
       <View style={[styles.iconContainer, { backgroundColor: themeColors.surfaceSecondary }]}>
         <Ionicons name={icon} size={20} color={themeColors.icon} />
       </View>
@@ -114,7 +102,7 @@ export default function InfoScreen() {
   const dateRange =
     startDate.toDateString() === endDate.toDateString()
       ? format(startDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR })
-      : `${format(startDate, "d", { locale: ptBR })} - ${format(endDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
+      : `${format(startDate, 'd', { locale: ptBR })} - ${format(endDate, "d 'de' MMMM 'de' yyyy", { locale: ptBR })}`;
 
   let rowIndex = 0;
 
@@ -126,10 +114,7 @@ export default function InfoScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Event Info Section */}
@@ -137,9 +122,7 @@ export default function InfoScreen() {
           <Text variant="label" color="textSecondary" style={styles.sectionTitle}>
             EVENTO
           </Text>
-          <View
-            style={[styles.sectionContent, { backgroundColor: themeColors.cardBackground }]}
-          >
+          <View style={[styles.sectionContent, { backgroundColor: themeColors.cardBackground }]}>
             <SettingsRow
               icon="calendar-outline"
               label={activeEvent.name}
@@ -168,9 +151,7 @@ export default function InfoScreen() {
           <Text variant="label" color="textSecondary" style={styles.sectionTitle}>
             CONFIGURAÇÕES
           </Text>
-          <View
-            style={[styles.sectionContent, { backgroundColor: themeColors.cardBackground }]}
-          >
+          <View style={[styles.sectionContent, { backgroundColor: themeColors.cardBackground }]}>
             <SettingsRow
               icon="phone-portrait-outline"
               label="Usar tema do sistema"
@@ -178,7 +159,7 @@ export default function InfoScreen() {
                 <Switch
                   value={themeMode === 'system'}
                   onValueChange={(enabled) => {
-                    setThemeMode(enabled ? 'system' : (isDark ? 'dark' : 'light'));
+                    setThemeMode(enabled ? 'system' : isDark ? 'dark' : 'light');
                   }}
                   trackColor={{
                     false: themeColors.border,
@@ -244,9 +225,7 @@ export default function InfoScreen() {
           <Text variant="label" color="textSecondary" style={styles.sectionTitle}>
             SOBRE
           </Text>
-          <View
-            style={[styles.sectionContent, { backgroundColor: themeColors.cardBackground }]}
-          >
+          <View style={[styles.sectionContent, { backgroundColor: themeColors.cardBackground }]}>
             <SettingsRow
               icon="logo-github"
               label="Código fonte"

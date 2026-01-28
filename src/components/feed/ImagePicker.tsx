@@ -3,12 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import * as ImagePickerExpo from 'expo-image-picker';
 import { useCallback } from 'react';
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import DragList, { DragListRenderItemInfo } from 'react-native-draglist';
 
 import { Text } from '@/components/ui/Text';
@@ -34,11 +29,11 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
       }
 
       const { status } = await ImagePickerExpo.requestMediaLibraryPermissionsAsync();
-      
+
       if (status !== 'granted') {
         Alert.alert(
           'Permissão necessária',
-          'Precisamos da sua permissão para acessar a galeria de fotos'
+          'Precisamos da sua permissão para acessar a galeria de fotos',
         );
         return;
       }
@@ -58,7 +53,7 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
         }));
 
         onImagesChange([...images, ...newImages]);
-        
+
         if (hapticEnabled) {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
@@ -69,61 +64,66 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
     }
   };
 
-  const handleRemoveImage = useCallback((imageId: string) => {
-    if (hapticEnabled) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
-    
-    const updatedImages = images
-      .filter(img => img.id !== imageId)
-      .map((img, index) => ({ ...img, order: index }));
-    
-    onImagesChange(updatedImages);
-  }, [images, onImagesChange, hapticEnabled]);
+  const handleRemoveImage = useCallback(
+    (imageId: string) => {
+      if (hapticEnabled) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
 
-  const handleReorderImages = useCallback((data: ImagePreview[] | undefined) => {
-    // Guard against undefined data
-    if (!data || !Array.isArray(data)) {
-      console.warn('handleReorderImages: Invalid data received', data);
-      return;
-    }
-    
-    const reorderedImages = data.map((img, index) => ({ ...img, order: index }));
-    onImagesChange(reorderedImages);
-    
-    if (hapticEnabled) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-  }, [onImagesChange, hapticEnabled]);
+      const updatedImages = images
+        .filter((img) => img.id !== imageId)
+        .map((img, index) => ({ ...img, order: index }));
+
+      onImagesChange(updatedImages);
+    },
+    [images, onImagesChange, hapticEnabled],
+  );
+
+  const handleReorderImages = useCallback(
+    (data: ImagePreview[] | undefined) => {
+      // Guard against undefined data
+      if (!data || !Array.isArray(data)) {
+        console.warn('handleReorderImages: Invalid data received', data);
+        return;
+      }
+
+      const reorderedImages = data.map((img, index) => ({ ...img, order: index }));
+      onImagesChange(reorderedImages);
+
+      if (hapticEnabled) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+    },
+    [onImagesChange, hapticEnabled],
+  );
 
   const keyExtractor = useCallback((item: ImagePreview) => item.id, []);
 
-  const renderImageItem = useCallback(({ item, onDragStart, onDragEnd }: DragListRenderItemInfo<ImagePreview>) => (
-    <View style={[styles.imageContainer, { borderColor: themeColors.border }]}>
-      <Image 
-        source={{ uri: item.uri }}
-        style={styles.previewImage}
-        contentFit="cover"
-      />
-      
-      <Pressable
-        style={[styles.removeButton, { backgroundColor: themeColors.background }]}
-        onPress={() => handleRemoveImage(item.id)}
-        hitSlop={8}
-      >
-        <Ionicons name="close" size={14} color={themeColors.text} />
-      </Pressable>
-      
-      <Pressable
-        style={[styles.dragHandle, { backgroundColor: themeColors.background }]}
-        onPressIn={onDragStart}
-        onPressOut={onDragEnd}
-        hitSlop={8}
-      >
-        <Ionicons name="reorder-three" size={16} color={themeColors.textSecondary} />
-      </Pressable>
-    </View>
-  ), [themeColors, handleRemoveImage]);
+  const renderImageItem = useCallback(
+    ({ item, onDragStart, onDragEnd }: DragListRenderItemInfo<ImagePreview>) => (
+      <View style={[styles.imageContainer, { borderColor: themeColors.border }]}>
+        <Image source={{ uri: item.uri }} style={styles.previewImage} contentFit="cover" />
+
+        <Pressable
+          style={[styles.removeButton, { backgroundColor: themeColors.background }]}
+          onPress={() => handleRemoveImage(item.id)}
+          hitSlop={8}
+        >
+          <Ionicons name="close" size={14} color={themeColors.text} />
+        </Pressable>
+
+        <Pressable
+          style={[styles.dragHandle, { backgroundColor: themeColors.background }]}
+          onPressIn={onDragStart}
+          onPressOut={onDragEnd}
+          hitSlop={8}
+        >
+          <Ionicons name="reorder-three" size={16} color={themeColors.textSecondary} />
+        </Pressable>
+      </View>
+    ),
+    [themeColors, handleRemoveImage],
+  );
 
   return (
     <View style={styles.container}>
@@ -135,7 +135,7 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
           <Text variant="caption" color="textTertiary" style={styles.hint}>
             Arraste para reordenar as fotos
           </Text>
-          
+
           <DragList
             data={images}
             keyExtractor={keyExtractor}
@@ -147,14 +147,16 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
           />
         </View>
       )}
-      
+
       <Pressable
         style={[styles.addButton, { borderColor: themeColors.border }]}
         onPress={handleAddImage}
       >
         <Ionicons name="camera" size={20} color={themeColors.tint} />
         <Text variant="label" color="tint" style={styles.addButtonText}>
-          {images.length === 0 ? 'Adicionar Fotos' : `Adicionar Mais (${maxImages - images.length} restantes)`}
+          {images.length === 0
+            ? 'Adicionar Fotos'
+            : `Adicionar Mais (${maxImages - images.length} restantes)`}
         </Text>
       </Pressable>
     </View>

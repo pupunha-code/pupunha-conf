@@ -1,17 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { forwardRef } from 'react';
-import {
-  Pressable,
-  PressableProps,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import { Pressable, PressableProps, StyleSheet, View, ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing, textStyles } from '@/lib/theme';
@@ -105,9 +95,7 @@ export const Button = forwardRef<View, ButtonProps>(function Button(
         };
       case 'secondary':
         return {
-          backgroundColor: disabled
-            ? themeColors.surfaceSecondary
-            : themeColors.surfaceSecondary,
+          backgroundColor: disabled ? themeColors.surfaceSecondary : themeColors.surfaceSecondary,
         };
       case 'outline':
         return {
@@ -173,10 +161,7 @@ export const Button = forwardRef<View, ButtonProps>(function Button(
       {...props}
     >
       {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
-      <Text
-        variant={size === 'sm' ? 'buttonSmall' : 'button'}
-        color={getTextColor()}
-      >
+      <Text variant={size === 'sm' ? 'buttonSmall' : 'button'} color={getTextColor()}>
         {loading ? 'Carregando...' : children}
       </Text>
       {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}

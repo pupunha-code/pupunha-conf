@@ -8,9 +8,14 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "eslint . --fix",
+    "lint:check": "eslint .",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
     "typecheck": "tsc --noEmit",
-    "reset-project": "node ./scripts/reset-project.js"
+    "quality": "bun run lint:check && bun run format:check && bun run typecheck",
+    "quality:fix": "bun run lint && bun run format && bun run typecheck",
+    "reset-project": "node ./scripts/reset-project.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@expo/react-native-action-sheet": "^4.1.1",
@@ -63,6 +68,8 @@
     "zustand": "^5.0.10"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
     "@types/react": "~19.1.0",
     "babel-plugin-react-compiler": "^19.0.0-beta-ebf51a3-20250411",
     "eslint": "^9.35.0",
@@ -70,6 +77,8 @@
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-compiler": "^19.1.0-rc.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.6.2",
     "typescript": "~5.9.2"
   },

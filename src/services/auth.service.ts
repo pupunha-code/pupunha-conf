@@ -10,11 +10,11 @@ class AuthService {
   async signInWithGoogle() {
     try {
       console.log('Starting Google OAuth...');
-      
+
       // Get the redirect URL - use the app scheme for proper deep linking
       const redirectUrl = Linking.createURL('/auth');
       console.log('Using redirect URL:', redirectUrl);
-      
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -38,21 +38,21 @@ class AuthService {
         console.log('Opening OAuth URL:', data.url);
         const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
         console.log('WebBrowser result:', result);
-        
+
         // If the result contains a URL, it means the OAuth flow completed
         // The URL will contain the tokens in the hash or query params
         if (result.type === 'success' && result.url) {
           console.log('OAuth callback received:', result.url);
-          
+
           // Extract tokens from the callback URL
           // Supabase returns tokens in the URL hash: #access_token=...&refresh_token=...
           // Parse the URL manually since URL constructor may not work in React Native
           const hashIndex = result.url.indexOf('#');
           const queryIndex = result.url.indexOf('?');
-          
+
           let accessToken: string | null = null;
           let refreshToken: string | null = null;
-          
+
           // Try to extract from hash first (Supabase default)
           if (hashIndex !== -1) {
             const hash = result.url.substring(hashIndex + 1);
@@ -60,7 +60,7 @@ class AuthService {
             accessToken = hashParams.get('access_token');
             refreshToken = hashParams.get('refresh_token');
           }
-          
+
           // Fallback to query params if not in hash
           if (!accessToken && queryIndex !== -1) {
             const query = result.url.substring(queryIndex + 1);
@@ -68,19 +68,19 @@ class AuthService {
             accessToken = queryParams.get('access_token');
             refreshToken = queryParams.get('refresh_token');
           }
-          
+
           if (accessToken) {
             console.log('Setting session from OAuth callback...');
             const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken || '',
             });
-            
+
             if (sessionError) {
               console.error('Error setting session:', sessionError);
               throw sessionError;
             }
-            
+
             console.log('✅ Session set successfully!');
             return { session: sessionData.session, user: sessionData.user };
           } else {
@@ -107,7 +107,7 @@ class AuthService {
   async signOut() {
     try {
       await supabase.auth.signOut();
-      
+
       // Clear user in analytics and revert to anonymous
       await analytics.clearUser();
     } catch (error) {
@@ -116,15 +116,8 @@ class AuthService {
     }
   }
 
-  async upsertProfile(profile: {
-    id: string;
-    name?: string;
-    avatar_url?: string;
-    email?: string;
-  }) {
-    const { error } = await supabase
-      .from('profiles')
-      .upsert(profile, { onConflict: 'id' });
+  async upsertProfile(profile: { id: string; name?: string; avatar_url?: string; email?: string }) {
+    const { error } = await supabase.from('profiles').upsert(profile, { onConflict: 'id' });
 
     if (error) {
       console.error('Profile upsert error:', error);

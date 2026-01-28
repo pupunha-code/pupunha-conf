@@ -19,64 +19,66 @@ export default function AuthCallbackScreen() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       console.log('Auth screen loading, development build detected...');
-      
+
       // For development builds, handle URL-based OAuth callback
       const handleURL = async (url: string) => {
         console.log('Processing auth callback URL:', url);
-        
+
         if (url && (url.includes('#access_token=') || url.includes('?access_token='))) {
           console.log('Found OAuth tokens in URL');
-          
+
           // Extract tokens from URL
           const [, hash] = url.split('#');
           const [, query] = url.split('?');
-          
+
           const params = new URLSearchParams(hash || query || '');
           const accessToken = params.get('access_token');
           const refreshToken = params.get('refresh_token');
-          
+
           if (accessToken) {
             console.log('Setting session from OAuth tokens...');
             await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken || '',
             });
-            
+
             console.log('✅ Session set successfully!');
             router.replace('/(event)/feed');
             return;
           }
         }
-        
+
         // If no tokens, fall back to session polling
         console.log('No tokens found, starting session polling...');
         startSessionPolling();
       };
-      
+
       const startSessionPolling = async () => {
         let attempts = 0;
         const maxAttempts = 20; // 10 seconds
-        
+
         const checkSession = async () => {
           attempts++;
           console.log(`Session polling attempt ${attempts}/${maxAttempts}...`);
-          
+
           try {
-            const { data: { session }, error } = await supabase.auth.getSession();
-            
+            const {
+              data: { session },
+              error,
+            } = await supabase.auth.getSession();
+
             if (session?.user) {
               console.log('✅ Found session! User is authenticated:', session.user.email);
               router.replace('/(event)/feed');
               return true;
             }
-            
+
             if (attempts < maxAttempts) {
               setTimeout(checkSession, 500);
             } else {
               console.log('❌ Max attempts reached, no session found');
               router.replace('/(event)/feed');
             }
-            
           } catch (error) {
             console.error('Session check error:', error);
             if (attempts < maxAttempts) {
@@ -86,10 +88,10 @@ export default function AuthCallbackScreen() {
             }
           }
         };
-        
+
         checkSession();
       };
-      
+
       // Check initial URL
       Linking.getInitialURL().then((url) => {
         if (url) {
@@ -98,12 +100,12 @@ export default function AuthCallbackScreen() {
           startSessionPolling();
         }
       });
-      
+
       // Listen for URL changes
       const subscription = Linking.addEventListener('url', (event) => {
         handleURL(event.url);
       });
-      
+
       return () => subscription?.remove();
     };
 
@@ -113,9 +115,7 @@ export default function AuthCallbackScreen() {
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ActivityIndicator size="large" color={themeColors.tint} />
-      <Text style={[styles.text, { color: themeColors.text }]}>
-        Finalizando login...
-      </Text>
+      <Text style={[styles.text, { color: themeColors.text }]}>Finalizando login...</Text>
     </View>
   );
 }

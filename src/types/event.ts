@@ -4,6 +4,11 @@
 
 import { Session, Speaker } from './session';
 
+export enum ConferenceDay {
+  One = 1,
+  Two = 2,
+}
+
 export interface EventDay {
   id: string;
   date: string; // YYYY-MM-DD format
@@ -22,7 +27,6 @@ export interface ConferenceEvent {
   days: EventDay[];
   speakers: Speaker[];
   imageUrl?: string;
-  gallery?: string[];
 }
 
 export interface EventState {

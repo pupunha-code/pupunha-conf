@@ -67,7 +67,6 @@ function AppInitializer() {
     initAuth();
   }, [initAuth]);
 
-
   // Wait for Zustand persist to hydrate and events to load, then initialize
   useEffect(() => {
     // Only initialize if we have events data and not loading

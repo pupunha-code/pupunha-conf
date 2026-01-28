@@ -71,9 +71,7 @@ function DayTab({ day, isActive, onPress, index }: DayTabProps) {
           styles.dayTab,
           animatedStyle,
           {
-            backgroundColor: isActive
-              ? themeColors.tint
-              : themeColors.surfaceSecondary,
+            backgroundColor: isActive ? themeColors.tint : themeColors.surfaceSecondary,
             borderColor: isActive ? themeColors.tint : themeColors.border,
           },
         ]}
@@ -88,10 +86,7 @@ function DayTab({ day, isActive, onPress, index }: DayTabProps) {
         <Text variant="h3" color={isActive ? 'textInverse' : 'text'}>
           {dayNumber}
         </Text>
-        <Text
-          variant="caption"
-          color={isActive ? 'textInverse' : 'textTertiary'}
-        >
+        <Text variant="caption" color={isActive ? 'textInverse' : 'textTertiary'}>
           {day.label}
         </Text>
       </AnimatedPressable>
@@ -109,15 +104,8 @@ export default function CalendarScreen() {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const {
-    activeEvent,
-    activeDay,
-    activeEventId,
-    activeDayId,
-    setActiveDay,
-    isLoading,
-    refetch,
-  } = useActiveEvent();
+  const { activeEvent, activeDay, activeEventId, activeDayId, setActiveDay, isLoading, refetch } =
+    useActiveEvent();
   const { useLocalTimezone } = useAppStore();
 
   const days = activeEvent?.days || [];
@@ -226,10 +214,7 @@ export default function CalendarScreen() {
       {/* Sessions list */}
       <Animated.ScrollView
         entering={FadeIn.delay(200)}
-        contentContainerStyle={[
-          styles.sessionsContainer,
-          { paddingBottom: insets.bottom + 100 },
-        ]}
+        contentContainerStyle={[styles.sessionsContainer, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -246,19 +231,12 @@ export default function CalendarScreen() {
           return (
             <View key={time} style={styles.timeGroup}>
               <View style={styles.timeHeader}>
-                <View
-                  style={[
-                    styles.timeBadge,
-                    { backgroundColor: themeColors.surfaceSecondary },
-                  ]}
-                >
+                <View style={[styles.timeBadge, { backgroundColor: themeColors.surfaceSecondary }]}>
                   <Text variant="label" color="text">
                     {timeLabel}
                   </Text>
                 </View>
-                <View
-                  style={[styles.timeLine, { backgroundColor: themeColors.border }]}
-                />
+                <View style={[styles.timeLine, { backgroundColor: themeColors.border }]} />
               </View>
 
               <View style={styles.sessionsList}>

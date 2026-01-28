@@ -121,10 +121,7 @@ export const SessionCard = memo(function SessionCard({
     return (
       <Animated.View
         entering={FadeInUp.delay(index * 30).springify()}
-        style={[
-          styles.breakCard,
-          { backgroundColor: themeColors.surfaceSecondary },
-        ]}
+        style={[styles.breakCard, { backgroundColor: themeColors.surfaceSecondary }]}
       >
         <Ionicons
           name={getSessionTypeIcon(session.type)}
@@ -161,17 +158,8 @@ export const SessionCard = memo(function SessionCard({
       >
         {/* Header with type badge and bookmark */}
         <View style={styles.cardHeader}>
-          <View
-            style={[
-              styles.typeBadge,
-              { backgroundColor: themeColors.surfaceSecondary },
-            ]}
-          >
-            <Ionicons
-              name={getSessionTypeIcon(session.type)}
-              size={12}
-              color={themeColors.icon}
-            />
+          <View style={[styles.typeBadge, { backgroundColor: themeColors.surfaceSecondary }]}>
+            <Ionicons name={getSessionTypeIcon(session.type)} size={12} color={themeColors.icon} />
             <Text variant="caption" color="textSecondary">
               {getSessionTypeLabel(session.type)}
             </Text>
@@ -217,9 +205,7 @@ export const SessionCard = memo(function SessionCard({
 
               // Get avatar URL: prefer photoUrl, then GitHub avatar, then fallback
               const avatarUrl =
-                speaker.photoUrl ||
-                getGitHubAvatarUrl(speaker.links?.github) ||
-                undefined;
+                speaker.photoUrl || getGitHubAvatarUrl(speaker.links?.github) || undefined;
 
               return (
                 <View key={speaker.id} style={styles.speaker}>
@@ -236,11 +222,7 @@ export const SessionCard = memo(function SessionCard({
                         { backgroundColor: themeColors.surfaceSecondary },
                       ]}
                     >
-                      <Ionicons
-                        name="person"
-                        size={14}
-                        color={themeColors.iconSecondary}
-                      />
+                      <Ionicons name="person" size={14} color={themeColors.iconSecondary} />
                     </View>
                   )}
                   <Text variant="label" color="text" numberOfLines={1}>

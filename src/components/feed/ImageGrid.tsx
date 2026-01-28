@@ -22,11 +22,7 @@ export function ImageGrid({ imageUrls, onImagePress }: ImageGridProps) {
       style={[styles.singleImage, { borderColor: themeColors.border }]}
       onPress={() => onImagePress?.(0)}
     >
-      <Image 
-        source={{ uri: imageUrls[0] }}
-        style={styles.image}
-        contentFit="cover"
-      />
+      <Image source={{ uri: imageUrls[0] }} style={styles.image} contentFit="cover" />
     </Pressable>
   );
 
@@ -38,11 +34,7 @@ export function ImageGrid({ imageUrls, onImagePress }: ImageGridProps) {
           style={[styles.halfImage, { borderColor: themeColors.border }]}
           onPress={() => onImagePress?.(index)}
         >
-          <Image 
-            source={{ uri: url }}
-            style={styles.image}
-            contentFit="cover"
-          />
+          <Image source={{ uri: url }} style={styles.image} contentFit="cover" />
         </Pressable>
       ))}
     </View>
@@ -54,11 +46,7 @@ export function ImageGrid({ imageUrls, onImagePress }: ImageGridProps) {
         style={[styles.leftLargeImage, { borderColor: themeColors.border }]}
         onPress={() => onImagePress?.(0)}
       >
-        <Image 
-          source={{ uri: imageUrls[0] }}
-          style={styles.image}
-          contentFit="cover"
-        />
+        <Image source={{ uri: imageUrls[0] }} style={styles.image} contentFit="cover" />
       </Pressable>
       <View style={styles.rightColumn}>
         {imageUrls.slice(1, 3).map((url, index) => (
@@ -67,11 +55,7 @@ export function ImageGrid({ imageUrls, onImagePress }: ImageGridProps) {
             style={[styles.smallImage, { borderColor: themeColors.border }]}
             onPress={() => onImagePress?.(index + 1)}
           >
-            <Image 
-              source={{ uri: url }}
-              style={styles.image}
-              contentFit="cover"
-            />
+            <Image source={{ uri: url }} style={styles.image} contentFit="cover" />
           </Pressable>
         ))}
       </View>
@@ -87,11 +71,7 @@ export function ImageGrid({ imageUrls, onImagePress }: ImageGridProps) {
             style={[styles.quarterImage, { borderColor: themeColors.border }]}
             onPress={() => onImagePress?.(index)}
           >
-            <Image 
-              source={{ uri: url }}
-              style={styles.image}
-              contentFit="cover"
-            />
+            <Image source={{ uri: url }} style={styles.image} contentFit="cover" />
           </Pressable>
         ))}
       </View>
@@ -102,11 +82,7 @@ export function ImageGrid({ imageUrls, onImagePress }: ImageGridProps) {
             style={[styles.quarterImage, { borderColor: themeColors.border }]}
             onPress={() => onImagePress?.(index + 2)}
           >
-            <Image 
-              source={{ uri: url }}
-              style={styles.image}
-              contentFit="cover"
-            />
+            <Image source={{ uri: url }} style={styles.image} contentFit="cover" />
           </Pressable>
         ))}
       </View>

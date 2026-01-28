@@ -15,9 +15,7 @@ export function useTheme(): ThemeContext {
   const { themeMode, hapticEnabled, toggleHaptic } = useAppStore();
 
   const colorScheme: ColorScheme =
-    themeMode === 'system'
-      ? (systemColorScheme ?? 'light')
-      : themeMode;
+    themeMode === 'system' ? (systemColorScheme ?? 'light') : themeMode;
 
   return {
     colorScheme,

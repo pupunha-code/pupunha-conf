@@ -40,7 +40,7 @@ export class AnalyticsService {
       });
 
       this.isInitialized = true;
-      
+
       // Identify anonymous user on initialization
       await this.identifyAnonymousUser();
     } catch (error) {
@@ -51,12 +51,12 @@ export class AnalyticsService {
   private async getOrCreateAnonymousUserId(): Promise<string> {
     try {
       let anonymousId = await AsyncStorage.getItem(ANONYMOUS_USER_KEY);
-      
+
       if (!anonymousId) {
         anonymousId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         await AsyncStorage.setItem(ANONYMOUS_USER_KEY, anonymousId);
       }
-      
+
       return anonymousId;
     } catch (error) {
       console.warn('Failed to get/create anonymous user ID:', error);
@@ -71,7 +71,7 @@ export class AnalyticsService {
 
     try {
       const anonymousId = await this.getOrCreateAnonymousUserId();
-      
+
       LogRocket.identify(anonymousId, {
         userType: 'anonymous',
         platform: Platform.OS,
@@ -83,11 +83,14 @@ export class AnalyticsService {
     }
   }
 
-  async identifyUser(userId: string, userInfo: {
-    name?: string;
-    email?: string;
-    [key: string]: any;
-  }): Promise<void> {
+  async identifyUser(
+    userId: string,
+    userInfo: {
+      name?: string;
+      email?: string;
+      [key: string]: any;
+    },
+  ): Promise<void> {
     if (!this.isInitialized) {
       await this.initialize();
     }

@@ -29,27 +29,23 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
   const isMyPost = user?.id === post.user_id;
 
   const handleDelete = () => {
-    Alert.alert(
-      'Excluir Post',
-      'Tem certeza que deseja excluir este post?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deletePost(post.id);
-              if (hapticEnabled) {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              }
-            } catch (error) {
-              Alert.alert('Erro', 'Não foi possível excluir o post');
+    Alert.alert('Excluir Post', 'Tem certeza que deseja excluir este post?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deletePost(post.id);
+            if (hapticEnabled) {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
-          },
+          } catch (error) {
+            Alert.alert('Erro', 'Não foi possível excluir o post');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const timeAgo = formatDistanceToNow(new Date(post.created_at), {
@@ -62,23 +58,25 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
       <View style={styles.header}>
         <View style={styles.authorInfo}>
           {post.user_profile?.avatar_url ? (
-            <Image 
+            <Image
               source={{ uri: post.user_profile.avatar_url }}
               style={[styles.avatar, { borderColor: themeColors.border }]}
             />
           ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder, { 
-              backgroundColor: themeColors.surfaceSecondary,
-              borderColor: themeColors.border 
-            }]}>
-              <Ionicons 
-                name="person" 
-                size={16} 
-                color={themeColors.textSecondary} 
-              />
+            <View
+              style={[
+                styles.avatar,
+                styles.avatarPlaceholder,
+                {
+                  backgroundColor: themeColors.surfaceSecondary,
+                  borderColor: themeColors.border,
+                },
+              ]}
+            >
+              <Ionicons name="person" size={16} color={themeColors.textSecondary} />
             </View>
           )}
-          
+
           <View style={styles.authorDetails}>
             <Text variant="label" color="text">
               {post.user_profile?.name || 'Usuário'}
@@ -90,16 +88,8 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
         </View>
 
         {isMyPost && (
-          <Pressable 
-            style={styles.deleteButton}
-            onPress={handleDelete}
-            hitSlop={8}
-          >
-            <Ionicons 
-              name="ellipsis-horizontal" 
-              size={16} 
-              color={themeColors.textSecondary} 
-            />
+          <Pressable style={styles.deleteButton} onPress={handleDelete} hitSlop={8}>
+            <Ionicons name="ellipsis-horizontal" size={16} color={themeColors.textSecondary} />
           </Pressable>
         )}
       </View>
@@ -109,7 +99,7 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
       </Text>
 
       {post.image_urls && post.image_urls.length > 0 && (
-        <ImageGrid 
+        <ImageGrid
           imageUrls={post.image_urls}
           onImagePress={(index) => {
             if (hapticEnabled) {

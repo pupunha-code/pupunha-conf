@@ -35,7 +35,7 @@ export default function BookmarkedScreen() {
 
   const bookmarkedSessions = getBookmarkedSessions(events as ConferenceEvent[]);
 
-  useFocusEffect( () => {
+  useFocusEffect(() => {
     refetchEvents();
   });
 

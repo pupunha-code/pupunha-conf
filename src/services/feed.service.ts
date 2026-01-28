@@ -7,13 +7,15 @@ class FeedService {
     // No authentication required - anyone can view the feed
     const { data, error } = await supabase
       .from('feed_posts')
-      .select(`
+      .select(
+        `
         *,
         user_profile:profiles!user_id (
           name,
           avatar_url
         )
-      `)
+      `,
+      )
       .eq('event_id', eventId)
       .order('created_at', { ascending: false });
 
@@ -26,8 +28,10 @@ class FeedService {
   }
 
   async createPost(input: CreateFeedPostInput): Promise<FeedPost> {
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       throw new Error('User not authenticated');
     }
@@ -42,13 +46,18 @@ class FeedService {
 
     // If profile doesn't exist, create it
     if (!existingProfile) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
+      const { error: profileError } = await supabase.from('profiles').upsert(
+        {
           id: user.id,
-          name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+          name:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split('@')[0] ||
+            'User',
           avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
-        }, { onConflict: 'id' });
+        },
+        { onConflict: 'id' },
+      );
 
       if (profileError) {
         console.error('Error creating/updating profile:', profileError);
@@ -64,13 +73,15 @@ class FeedService {
         image_urls: input.image_urls || [],
         user_id: user.id,
       })
-      .select(`
+      .select(
+        `
         *,
         user_profile:profiles!user_id (
           name,
           avatar_url
         )
-      `)
+      `,
+      )
       .single();
 
     if (error) {
@@ -82,8 +93,10 @@ class FeedService {
   }
 
   async deletePost(postId: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       throw new Error('User not authenticated');
     }
@@ -106,38 +119,34 @@ class FeedService {
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: 'base64',
       });
-      
+
       // Determine file extension and MIME type
-      const fileExt = uri.split('.').pop()?.toLowerCase() || fileName.split('.').pop()?.toLowerCase() || 'jpg';
-      const mimeType = fileExt === 'png' ? 'image/png' : 
-                       fileExt === 'gif' ? 'image/gif' : 
-                       'image/jpeg';
-      
+      const fileExt =
+        uri.split('.').pop()?.toLowerCase() || fileName.split('.').pop()?.toLowerCase() || 'jpg';
+      const mimeType =
+        fileExt === 'png' ? 'image/png' : fileExt === 'gif' ? 'image/gif' : 'image/jpeg';
+
       // Convert base64 to Uint8Array directly (more reliable than fetch)
       const binaryString = atob(base64);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
         bytes[i] = binaryString.charCodeAt(i);
       }
-      
+
       const uniqueFileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `feed-images/${uniqueFileName}`;
 
-      const { data, error } = await supabase.storage
-        .from('feed-images')
-        .upload(filePath, bytes, {
-          contentType: mimeType,
-          upsert: false,
-        });
+      const { data, error } = await supabase.storage.from('feed-images').upload(filePath, bytes, {
+        contentType: mimeType,
+        upsert: false,
+      });
 
       if (error) {
         throw error;
       }
 
       // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('feed-images')
-        .getPublicUrl(data.path);
+      const { data: urlData } = supabase.storage.from('feed-images').getPublicUrl(data.path);
 
       return urlData.publicUrl;
     } catch (error) {
@@ -158,7 +167,7 @@ class FeedService {
           table: 'feed_posts',
           filter: `event_id=eq.${eventId}`,
         },
-        callback
+        callback,
       )
       .subscribe();
   }

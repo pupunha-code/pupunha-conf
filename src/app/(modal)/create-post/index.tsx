@@ -9,8 +9,9 @@ import {
   StyleSheet,
   TextInput,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import { KeyboardAvoidingView, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ImagePicker } from '@/components/feed/ImagePicker';
@@ -58,12 +59,12 @@ export default function CreatePostModal() {
       if (selectedImages.length > 0) {
         // Sort images by order before uploading
         const sortedImages = [...selectedImages].sort((a, b) => a.order - b.order);
-        
+
         // Upload all images in parallel
-        const uploadPromises = sortedImages.map((img, index) => 
-          uploadImage(img.uri, `post_${Date.now()}_${index}.jpg`)
+        const uploadPromises = sortedImages.map((img, index) =>
+          uploadImage(img.uri, `post_${Date.now()}_${index}.jpg`),
         );
-        
+
         imageUrls = await Promise.all(uploadPromises);
       }
 
@@ -95,17 +96,19 @@ export default function CreatePostModal() {
       style={[styles.container, { backgroundColor: themeColors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={[styles.header, { paddingTop: insets.top, borderBottomColor: themeColors.border }]}>
+      <View
+        style={[styles.header, { paddingTop: insets.top, borderBottomColor: themeColors.border }]}
+      >
         <Pressable style={styles.cancelButton} onPress={handleClose}>
           <Text variant="button" color="textSecondary">
             Cancelar
           </Text>
         </Pressable>
-        
+
         <Text variant="h2" color="text">
           Novo Post
         </Text>
-        
+
         <View style={styles.placeholder} />
       </View>
 
@@ -132,14 +135,15 @@ export default function CreatePostModal() {
           {content.length}/500
         </Text>
 
-        <ImagePicker 
-          images={selectedImages}
-          onImagesChange={setSelectedImages}
-          maxImages={4}
-        />
+        <ImagePicker images={selectedImages} onImagesChange={setSelectedImages} maxImages={4} />
       </ScrollView>
 
-      <View style={[styles.footer, { paddingBottom: insets.bottom, borderTopColor: themeColors.border }]}>
+      <View
+        style={[
+          styles.footer,
+          { paddingBottom: insets.bottom, borderTopColor: themeColors.border },
+        ]}
+      >
         <Button
           variant="primary"
           size="lg"

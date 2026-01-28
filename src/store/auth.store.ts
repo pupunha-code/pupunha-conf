@@ -26,23 +26,25 @@ export const useAuthStore = create(
         try {
           console.log('Auth store: Starting Google sign in...');
           set({ isLoading: true });
-          
+
           // This will open the browser for OAuth flow
           const result = await authService.signInWithGoogle();
           console.log('Auth store: OAuth result:', result);
-          
+
           // After OAuth, the session will be handled by the auth state change listener
           // So we just need to indicate loading is complete
           set({ isLoading: false });
-          
+
           return result;
         } catch (error) {
           console.error('Auth store sign in error:', error);
           set({ isLoading: false });
-          
+
           // Provide user-friendly error message
           if (error.message?.includes('Provider') && error.message?.includes('not enabled')) {
-            throw new Error('Google sign-in não está configurado ainda. Configure o Google OAuth no Supabase primeiro.');
+            throw new Error(
+              'Google sign-in não está configurado ainda. Configure o Google OAuth no Supabase primeiro.',
+            );
           }
           throw error;
         }
@@ -51,10 +53,10 @@ export const useAuthStore = create(
       signOut: async () => {
         try {
           await authService.signOut();
-          set({ 
-            user: null, 
+          set({
+            user: null,
             isAuthenticated: false,
-            isLoading: false 
+            isLoading: false,
           });
         } catch (error) {
           console.error('Sign out error:', error);
@@ -65,25 +67,28 @@ export const useAuthStore = create(
       initialize: async () => {
         try {
           set({ isLoading: true });
-          
+
           // Only check for existing session, don't fail if Google provider isn't configured
-          const { data: { session }, error } = await authService.getSession();
-          
+          const {
+            data: { session },
+            error,
+          } = await authService.getSession();
+
           // If there's no session or error, just set defaults without failing
-          set({ 
+          set({
             user: session?.user || null,
             isAuthenticated: !!session?.user,
-            isLoading: false 
+            isLoading: false,
           });
 
           // Listen for auth changes
           authService.onAuthStateChange(async (event, session) => {
             console.log('Auth state changed:', event, session?.user ? 'User logged in' : 'No user');
-            
+
             const user = session?.user || null;
-            set({ 
+            set({
               user,
-              isAuthenticated: !!user 
+              isAuthenticated: !!user,
             });
 
             // Handle analytics user identification on auth state changes
@@ -107,11 +112,14 @@ export const useAuthStore = create(
             }
           });
         } catch (error) {
-          console.warn('Auth initialization error (this is expected if Google provider is not configured):', error);
-          set({ 
+          console.warn(
+            'Auth initialization error (this is expected if Google provider is not configured):',
+            error,
+          );
+          set({
             user: null,
             isAuthenticated: false,
-            isLoading: false 
+            isLoading: false,
           });
         }
       },

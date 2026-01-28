@@ -100,18 +100,6 @@ export default function SessionDetailScreen() {
 
   // Compute bookmark status using the built-in method
   const isSessionBookmarked = isBookmarked(id);
-  if (!session) {
-    return (
-      <Screen safeArea="both" centered>
-        <Text variant="body" color="textSecondary">
-          Palestra não encontrada
-        </Text>
-        <Button onPress={() => router.back()} style={styles.backButton}>
-          Voltar
-        </Button>
-      </Screen>
-    );
-  }
 
   // Format times based on timezone preference
   // API times are in UTC format but represent local Brazil times
@@ -128,12 +116,27 @@ export default function SessionDetailScreen() {
     }
   };
 
+  const handleBookmarkPress = useCallback(() => {
+    if (session) {
+      toggleBookmark(session.id);
+    }
+  }, [session?.id, toggleBookmark]);
+
+  if (!session) {
+    return (
+      <Screen safeArea="both" centered>
+        <Text variant="body" color="textSecondary">
+          Palestra não encontrada
+        </Text>
+        <Button onPress={() => router.back()} style={styles.backButton}>
+          Voltar
+        </Button>
+      </Screen>
+    );
+  }
+
   const startTime = new Date(session.startTime);
   const endTime = new Date(session.endTime);
-
-  const handleBookmarkPress = useCallback(() => {
-    toggleBookmark(session.id);
-  }, [session.id, toggleBookmark]);
 
   const handleSpeakerPress = (speakerId: string) => {
     if (hapticEnabled) {
@@ -144,28 +147,33 @@ export default function SessionDetailScreen() {
   const themeColors = colors[colorScheme];
 
   return (
-    <Screen safeArea="bottom" padded={false}> 
-      <Header title="Detalhes da Palestra" 
-      left={
-        <TouchableOpacity
-          onPress={() => router.back()}
-          activeOpacity={0.6}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={styles.headerButton}
-        >
-          <Ionicons name="chevron-back" size={24} color={themeColors.icon} />
-        </TouchableOpacity>
-      }
-      right={
-        <TouchableOpacity
-          onPress={handleBookmarkPress}
-          activeOpacity={0.6}
-          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          style={styles.headerButton}
-        >
-          <Ionicons name={isSessionBookmarked ? 'bookmark' : 'bookmark-outline'} size={24} color={themeColors.tint} />
-        </TouchableOpacity>
-      }
+    <Screen safeArea="bottom" padded={false}>
+      <Header
+        title="Detalhes da Palestra"
+        left={
+          <TouchableOpacity
+            onPress={() => router.back()}
+            activeOpacity={0.6}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.headerButton}
+          >
+            <Ionicons name="chevron-back" size={24} color={themeColors.icon} />
+          </TouchableOpacity>
+        }
+        right={
+          <TouchableOpacity
+            onPress={handleBookmarkPress}
+            activeOpacity={0.6}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            style={styles.headerButton}
+          >
+            <Ionicons
+              name={isSessionBookmarked ? 'bookmark' : 'bookmark-outline'}
+              size={24}
+              color={themeColors.tint}
+            />
+          </TouchableOpacity>
+        }
       />
       <ScrollView
         contentContainerStyle={[

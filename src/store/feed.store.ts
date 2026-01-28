@@ -11,7 +11,7 @@ interface FeedStoreState extends FeedState {
   uploadImage: (uri: string, fileName: string) => Promise<string>;
   clearFeed: () => void;
   setError: (error: string | null) => void;
-  
+
   // Real-time subscription
   subscribeToUpdates: (eventId: string) => () => void;
 }
@@ -29,9 +29,9 @@ export const useFeedStore = create<FeedStoreState>((set, get) => ({
       set({ posts, isLoading: false });
     } catch (error) {
       console.error('Error fetching posts:', error);
-      set({ 
-        error: 'Erro ao carregar o feed', 
-        isLoading: false 
+      set({
+        error: 'Erro ao carregar o feed',
+        isLoading: false,
       });
     }
   },
@@ -40,17 +40,17 @@ export const useFeedStore = create<FeedStoreState>((set, get) => ({
     try {
       set({ isCreating: true, error: null });
       const newPost = await feedService.createPost(input);
-      
+
       // Add the new post to the beginning of the list
-      set(state => ({ 
+      set((state) => ({
         posts: [newPost, ...state.posts],
-        isCreating: false 
+        isCreating: false,
       }));
     } catch (error) {
       console.error('Error creating post:', error);
-      set({ 
-        error: 'Erro ao criar post', 
-        isCreating: false 
+      set({
+        error: 'Erro ao criar post',
+        isCreating: false,
       });
       throw error;
     }
@@ -59,10 +59,10 @@ export const useFeedStore = create<FeedStoreState>((set, get) => ({
   deletePost: async (postId: string) => {
     try {
       await feedService.deletePost(postId);
-      
+
       // Remove the post from the list
-      set(state => ({ 
-        posts: state.posts.filter(post => post.id !== postId)
+      set((state) => ({
+        posts: state.posts.filter((post) => post.id !== postId),
       }));
     } catch (error) {
       console.error('Error deleting post:', error);
@@ -84,28 +84,26 @@ export const useFeedStore = create<FeedStoreState>((set, get) => ({
   subscribeToUpdates: (eventId: string) => {
     const subscription = feedService.subscribeToFeedUpdates(eventId, (payload) => {
       const { eventType, new: newRecord, old: oldRecord } = payload;
-      
-      set(state => {
+
+      set((state) => {
         switch (eventType) {
           case 'INSERT':
             // Add new post if not already in the list
-            if (!state.posts.some(post => post.id === newRecord.id)) {
+            if (!state.posts.some((post) => post.id === newRecord.id)) {
               return { posts: [newRecord, ...state.posts] };
             }
             return state;
-            
+
           case 'DELETE':
-            return { 
-              posts: state.posts.filter(post => post.id !== oldRecord.id) 
+            return {
+              posts: state.posts.filter((post) => post.id !== oldRecord.id),
             };
-            
+
           case 'UPDATE':
             return {
-              posts: state.posts.map(post => 
-                post.id === newRecord.id ? newRecord : post
-              )
+              posts: state.posts.map((post) => (post.id === newRecord.id ? newRecord : post)),
             };
-            
+
           default:
             return state;
         }

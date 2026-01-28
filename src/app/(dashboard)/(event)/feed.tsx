@@ -59,7 +59,7 @@ export default function FeedScreen() {
   };
 
   const handleCreatePost = () => {
-      router.push('/(modal)/create-post');
+    router.push('/(modal)/create-post');
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -145,7 +145,13 @@ export default function FeedScreen() {
             renderItem={renderPost}
             keyExtractor={(item) => item.id}
             ListHeaderComponent={renderHeader}
-            ListEmptyComponent={!isLoading ? renderEmptyState : <ActivityIndicator size="large" color={themeColors.tint} />}
+            ListEmptyComponent={
+              !isLoading ? (
+                renderEmptyState
+              ) : (
+                <ActivityIndicator size="large" color={themeColors.tint} />
+              )
+            }
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}

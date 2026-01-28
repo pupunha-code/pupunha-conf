@@ -32,7 +32,7 @@ export default function ImageViewerScreen() {
 
   const initialIndex = parseInt(params.index || '0', 10);
   const imageUrls = params.images ? JSON.parse(decodeURIComponent(params.images)) : [];
-  
+
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isDownloading, setIsDownloading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -46,11 +46,14 @@ export default function ImageViewerScreen() {
 
     try {
       setIsDownloading(true);
-      
+
       // Request permissions
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permissão negada', 'É necessário permitir acesso à galeria para salvar imagens.');
+        Alert.alert(
+          'Permissão negada',
+          'É necessário permitir acesso à galeria para salvar imagens.',
+        );
         return;
       }
 
@@ -64,10 +67,10 @@ export default function ImageViewerScreen() {
       // Download the image using legacy API with proper path
       const fileUri = documentDirectory + filename;
       const { uri } = await downloadAsync(currentImageUrl, fileUri);
-      
+
       // Save to media library
       await MediaLibrary.saveToLibraryAsync(uri);
-      
+
       if (hapticEnabled) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
@@ -76,7 +79,7 @@ export default function ImageViewerScreen() {
     } catch (error) {
       console.error('Download error:', error);
       Alert.alert('Erro', 'Não foi possível salvar a imagem. Tente novamente.');
-      
+
       if (hapticEnabled) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
@@ -128,7 +131,10 @@ export default function ImageViewerScreen() {
   if (imageUrls.length === 0) {
     return (
       <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <Pressable style={[styles.closeButton, { top: insets.top + spacing.md }]} onPress={handleClose}>
+        <Pressable
+          style={[styles.closeButton, { top: insets.top + spacing.md }]}
+          onPress={handleClose}
+        >
           <Ionicons name="close" size={24} color={themeColors.text} />
         </Pressable>
         <View style={styles.errorContainer}>
@@ -147,7 +153,7 @@ export default function ImageViewerScreen() {
         <Pressable style={styles.closeButton} onPress={handleClose}>
           <Ionicons name="close" size={28} color="#fff" />
         </Pressable>
-        
+
         {imageUrls.length > 1 ? (
           <View style={styles.counter}>
             <Text variant="label" style={styles.counterText}>
@@ -157,17 +163,9 @@ export default function ImageViewerScreen() {
         ) : (
           <View style={styles.counterPlaceholder} />
         )}
-        
-        <Pressable 
-          style={styles.downloadButton} 
-          onPress={handleDownload}
-          disabled={isDownloading}
-        >
-          <Ionicons 
-            name={isDownloading ? "hourglass" : "download"} 
-            size={24} 
-            color="#fff" 
-          />
+
+        <Pressable style={styles.downloadButton} onPress={handleDownload} disabled={isDownloading}>
+          <Ionicons name={isDownloading ? 'hourglass' : 'download'} size={24} color="#fff" />
         </Pressable>
       </View>
 
@@ -206,19 +204,13 @@ export default function ImageViewerScreen() {
       {imageUrls.length > 1 && (
         <>
           {currentIndex > 0 && (
-            <Pressable
-              style={[styles.navButton, styles.prevButton]}
-              onPress={handlePrevious}
-            >
+            <Pressable style={[styles.navButton, styles.prevButton]} onPress={handlePrevious}>
               <Ionicons name="chevron-back" size={32} color="#fff" />
             </Pressable>
           )}
-          
+
           {currentIndex < imageUrls.length - 1 && (
-            <Pressable
-              style={[styles.navButton, styles.nextButton]}
-              onPress={handleNext}
-            >
+            <Pressable style={[styles.navButton, styles.nextButton]} onPress={handleNext}>
               <Ionicons name="chevron-forward" size={32} color="#fff" />
             </Pressable>
           )}

@@ -54,11 +54,7 @@ export function Header({ title, left, right, transparent, style }: HeaderProps) 
 
   if (transparent && Platform.OS === 'ios' && !isLiquidGlassAvailable()) {
     return (
-      <BlurView
-        intensity={80}
-        tint={colorScheme}
-        style={[styles.container, containerStyle, style]}
-      >
+      <BlurView intensity={80} tint={colorScheme} style={[styles.container, containerStyle, style]}>
         {content}
       </BlurView>
     );
@@ -70,9 +66,7 @@ export function Header({ title, left, right, transparent, style }: HeaderProps) 
         styles.container,
         containerStyle,
         {
-          backgroundColor: transparent
-            ? 'transparent'
-            : themeColors.background,
+          backgroundColor: transparent ? 'transparent' : themeColors.background,
           borderBottomColor: transparent ? 'transparent' : themeColors.border,
         },
         style,
