@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -208,7 +208,7 @@ export default function InfoScreen() {
             />
             <SettingsRow
               icon="hand-left-outline"
-              label="Feedback háptico"
+              label="Feedback tátil"
               rightElement={
                 <Switch
                   value={hapticEnabled}

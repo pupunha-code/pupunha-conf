@@ -146,6 +146,7 @@ export const useEventStore = create(
           const fiveMinutesTillSession = subMinutes(new Date(session.startTime), 5);
 
           if (isPast(fiveMinutesTillSession)) {
+            console.log('Session already started, skipping notification');
             return undefined;
           }
 

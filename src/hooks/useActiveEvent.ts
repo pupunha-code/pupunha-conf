@@ -65,5 +65,6 @@ export function useActiveEvent() {
     getSpeaker,
     getSession,
     isBookmarked,
+    getBookmarkedSessions,
   };
 }

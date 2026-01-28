@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import * as Haptics from 'expo-haptics';
-import { format, parseISO } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { memo } from 'react';
 import { Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, {
@@ -20,6 +19,7 @@ import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useAppStore } from '@/store/app.store';
 import { Session, SessionType } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -61,6 +61,7 @@ export const SessionCard = memo(function SessionCard({
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
   const scale = useSharedValue(1);
+  const queryClient = useQueryClient();
 
   const { isBookmarked, toggleBookmark, getSpeaker } = useActiveEvent();
   const { useLocalTimezone } = useAppStore();
@@ -88,9 +89,12 @@ export const SessionCard = memo(function SessionCard({
   };
 
   const handleBookmarkPress = () => {
+    console.log('handleBookmarkPress', session.id);
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
+    //invalidate query
+    queryClient.invalidateQueries({ queryKey: ['bookmarkedSessions'] });
     toggleBookmark(session.id);
   };
 

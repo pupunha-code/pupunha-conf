@@ -40,7 +40,6 @@ interface SpeakerCardProps {
 function SpeakerCard({ speaker, index, onPress }: SpeakerCardProps) {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
-
   const handlePress = () => {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -95,15 +94,12 @@ export default function SessionDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colorScheme, hapticEnabled } = useTheme();
-  const themeColors = colors[colorScheme];
-
   const { getSession, isBookmarked, toggleBookmark, getSpeaker } = useActiveEvent();
   const { useLocalTimezone } = useAppStore();
   const session = getSession(id);
 
   // Compute bookmark status using the built-in method
   const isSessionBookmarked = isBookmarked(id);
-
   if (!session) {
     return (
       <Screen safeArea="both" centered>
@@ -145,6 +141,7 @@ export default function SessionDetailScreen() {
     }
     router.push(`/(modal)/speaker/${speakerId}`);
   };
+  const themeColors = colors[colorScheme];
 
   return (
     <Screen safeArea="bottom" padded={false}> 
@@ -166,7 +163,7 @@ export default function SessionDetailScreen() {
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           style={styles.headerButton}
         >
-          <Ionicons name="bookmark-outline" size={24} color={themeColors.icon} />
+          <Ionicons name={isSessionBookmarked ? 'bookmark' : 'bookmark-outline'} size={24} color={themeColors.tint} />
         </TouchableOpacity>
       }
       />

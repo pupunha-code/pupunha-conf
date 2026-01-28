@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,8 +8,10 @@ import { Screen } from '@/components/layout';
 import { Button, Text } from '@/components/ui';
 import { SessionCard } from '@/features/sessions/SessionCard';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
+import { useEventsQuery } from '@/hooks/useEventsQuery';
 import { useTheme } from '@/hooks/useTheme';
 import { colors, spacing } from '@/lib/theme';
+import { ConferenceEvent } from '@/types/event';
 
 /**
  * Bookmarked sessions screen.
@@ -21,8 +23,8 @@ export default function BookmarkedScreen() {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { activeEvent, bookmarkedSessions, isLoading, refetch } = useActiveEvent();
-
+  const { activeEvent, getBookmarkedSessions, isLoading, refetch } = useActiveEvent();
+  const { data: events = [], refetch: refetchEvents } = useEventsQuery();
   const handleSessionPress = (sessionId: string) => {
     router.push(`/(modal)/session/${sessionId}`);
   };
@@ -30,6 +32,12 @@ export default function BookmarkedScreen() {
   const handleExplore = () => {
     router.push('/(dashboard)/(event)/calendar');
   };
+
+  const bookmarkedSessions = getBookmarkedSessions(events as ConferenceEvent[]);
+
+  useFocusEffect( () => {
+    refetchEvents();
+  });
 
   if (!activeEvent) {
     return (
