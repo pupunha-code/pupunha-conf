@@ -37,17 +37,17 @@ export default function FeedScreen() {
   }, [initAuth]);
 
   useEffect(() => {
-    if (activeEvent) {
+    if (activeEvent && isAuthenticated) {
       clearFeed();
       fetchPosts(activeEvent.id);
 
       const unsubscribe = subscribeToUpdates(activeEvent.id);
       return unsubscribe;
     }
-  }, [activeEvent?.id, fetchPosts, subscribeToUpdates, clearFeed]);
+  }, [activeEvent?.id, isAuthenticated, fetchPosts, subscribeToUpdates, clearFeed]);
 
   const handleRefresh = async () => {
-    if (!activeEvent) return;
+    if (!activeEvent || !isAuthenticated) return;
 
     setRefreshing(true);
     try {
@@ -68,19 +68,15 @@ export default function FeedScreen() {
 
   const renderHeader = () => (
     <View style={styles.header}>
-      {!isAuthenticated && <LoginPrompt />}
-
-      {isAuthenticated && (
-        <Pressable
-          style={[styles.createButton, { borderColor: themeColors.border }]}
-          onPress={handleCreatePost}
-        >
-          <Text variant="body" color="textSecondary">
-            Compartilhe suas fotos do evento...
-          </Text>
-          <Ionicons name="camera" size={20} color={themeColors.textSecondary} />
-        </Pressable>
-      )}
+      <Pressable
+        style={[styles.createButton, { borderColor: themeColors.border }]}
+        onPress={handleCreatePost}
+      >
+        <Text variant="body" color="textSecondary">
+          Compartilhe suas fotos do evento...
+        </Text>
+        <Ionicons name="camera" size={20} color={themeColors.textSecondary} />
+      </Pressable>
     </View>
   );
 
@@ -136,7 +132,11 @@ export default function FeedScreen() {
           </Text>
         </View>
 
-        {error ? (
+        {!isAuthenticated ? (
+          <View style={styles.unauthenticatedContainer}>
+            <LoginPrompt />
+          </View>
+        ) : error ? (
           renderError()
         ) : (
           <FlatList
@@ -233,5 +233,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: spacing.sm,
     lineHeight: 20,
+  },
+  unauthenticatedContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: spacing.lg,
   },
 });

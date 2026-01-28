@@ -8,10 +8,10 @@ export default function DashboardLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(event)" />
-      <Stack.Screen 
+      <Stack.Screen
         name="(modal)"
         options={{
-          presentation: 'transparentModal',
+          presentation: 'modal',
           animation: 'fade',
           gestureEnabled: true,
         }}

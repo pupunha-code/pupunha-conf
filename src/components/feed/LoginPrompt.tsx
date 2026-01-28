@@ -19,7 +19,7 @@ export function LoginPrompt() {
       console.error('LoginPrompt sign in error:', error);
       Alert.alert(
         'Erro no Login',
-        error.message || 'Não foi possível fazer login com o Google. Tente novamente.'
+        error.message || 'Não foi possível fazer login com o Google. Tente novamente.',
       );
     }
   };
@@ -29,13 +29,13 @@ export function LoginPrompt() {
       <View style={styles.iconContainer}>
         <Ionicons name="person-circle" size={48} color="#6366f1" />
       </View>
-      
+
       <Text variant="h3" color="text" style={styles.title}>
-        Faça login para participar
+        Faça login para ver o feed
       </Text>
-      
+
       <Text variant="body" color="textSecondary" style={styles.description}>
-        Entre com sua conta do Google para compartilhar fotos e comentários sobre o evento.
+        Entre com sua conta do Google para ver e compartilhar fotos e comentários sobre o evento.
       </Text>
 
       <Button

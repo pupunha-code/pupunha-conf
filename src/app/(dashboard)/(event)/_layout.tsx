@@ -103,7 +103,11 @@ export default function EventTabsLayout() {
         options={{
           title: 'Feed',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'chatbubbles' : 'chatbubbles-outline'} color={color} focused={focused} />
+            <TabIcon
+              name={focused ? 'chatbubbles' : 'chatbubbles-outline'}
+              color={color}
+              focused={focused}
+            />
           ),
         }}
       />
@@ -118,18 +122,6 @@ export default function EventTabsLayout() {
               focused={focused}
             />
           ),
-        }}
-      />
-      <Tabs.Screen
-        name="session/[id]"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      <Tabs.Screen
-        name="speaker/[id]"
-        options={{
-          href: null, // Hide from tab bar
         }}
       />
     </Tabs>

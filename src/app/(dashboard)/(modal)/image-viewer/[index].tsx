@@ -1,8 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { downloadAsync, documentDirectory } from 'expo-file-system/legacy';
+import * as Haptics from 'expo-haptics';
+import * as MediaLibrary from 'expo-media-library';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   Pressable,
   ScrollView,
@@ -22,7 +26,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export default function ImageViewerScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ index: string; images: string }>();
-  const { colorScheme } = useTheme();
+  const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
   const insets = useSafeAreaInsets();
 
@@ -30,21 +34,76 @@ export default function ImageViewerScreen() {
   const imageUrls = params.images ? JSON.parse(decodeURIComponent(params.images)) : [];
   
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [isDownloading, setIsDownloading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const handleClose = () => {
     router.back();
   };
 
+  const handleDownload = async () => {
+    if (isDownloading) return;
+
+    try {
+      setIsDownloading(true);
+      
+      // Request permissions
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permissão negada', 'É necessário permitir acesso à galeria para salvar imagens.');
+        return;
+      }
+
+      const currentImageUrl = imageUrls[currentIndex];
+      const filename = `image_${Date.now()}.jpg`;
+
+      if (hapticEnabled) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+
+      // Download the image using legacy API with proper path
+      const fileUri = documentDirectory + filename;
+      const { uri } = await downloadAsync(currentImageUrl, fileUri);
+      
+      // Save to media library
+      await MediaLibrary.saveToLibraryAsync(uri);
+      
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+
+      Alert.alert('Sucesso', 'Imagem salva na galeria!');
+    } catch (error) {
+      console.error('Download error:', error);
+      Alert.alert('Erro', 'Não foi possível salvar a imagem. Tente novamente.');
+      
+      if (hapticEnabled) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      }
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      const newIndex = currentIndex - 1;
+      setCurrentIndex(newIndex);
+      scrollViewRef.current?.scrollTo({
+        x: newIndex * SCREEN_WIDTH,
+        animated: true,
+      });
     }
   };
 
   const handleNext = () => {
     if (currentIndex < imageUrls.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      const newIndex = currentIndex + 1;
+      setCurrentIndex(newIndex);
+      scrollViewRef.current?.scrollTo({
+        x: newIndex * SCREEN_WIDTH,
+        animated: true,
+      });
     }
   };
 
@@ -83,21 +142,33 @@ export default function ImageViewerScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: '#000' }]}>
-      {/* Header with close button and image counter */}
+      {/* Header with close button, image counter, and download button */}
       <View style={[styles.header, { paddingTop: insets.top + spacing.sm }]}>
         <Pressable style={styles.closeButton} onPress={handleClose}>
           <Ionicons name="close" size={28} color="#fff" />
         </Pressable>
         
-        {imageUrls.length > 1 && (
+        {imageUrls.length > 1 ? (
           <View style={styles.counter}>
             <Text variant="label" style={styles.counterText}>
               {currentIndex + 1} / {imageUrls.length}
             </Text>
           </View>
+        ) : (
+          <View style={styles.counterPlaceholder} />
         )}
         
-        <View style={styles.placeholder} />
+        <Pressable 
+          style={styles.downloadButton} 
+          onPress={handleDownload}
+          disabled={isDownloading}
+        >
+          <Ionicons 
+            name={isDownloading ? "hourglass" : "download"} 
+            size={24} 
+            color="#fff" 
+          />
+        </Pressable>
       </View>
 
       {/* Image carousel */}
@@ -111,7 +182,7 @@ export default function ImageViewerScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
       >
-        {imageUrls.map((url, index) => (
+        {imageUrls.map((url: string, index: number) => (
           <ScrollView
             key={index}
             style={styles.imageContainer}
@@ -192,8 +263,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
-  placeholder: {
+  counterPlaceholder: {
+    flex: 1,
+  },
+  downloadButton: {
     width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   scrollView: {
     flex: 1,

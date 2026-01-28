@@ -32,6 +32,7 @@ export default function CreatePostModal() {
 
   const [content, setContent] = useState('');
   const [selectedImages, setSelectedImages] = useState<ImagePreview[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     if (!content.trim() && selectedImages.length === 0) {
@@ -42,6 +43,13 @@ export default function CreatePostModal() {
     if (!activeEvent) {
       Alert.alert('Erro', 'Nenhum evento selecionado');
       return;
+    }
+
+    // Set immediate loading state
+    setIsSubmitting(true);
+
+    if (hapticEnabled) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
 
     try {
@@ -73,6 +81,8 @@ export default function CreatePostModal() {
     } catch (error) {
       console.error('Error creating post:', error);
       Alert.alert('Erro', 'Não foi possível publicar o post');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -135,10 +145,10 @@ export default function CreatePostModal() {
           size="lg"
           fullWidth
           onPress={handleSubmit}
-          loading={isCreating}
-          disabled={isCreating || (!content.trim() && selectedImages.length === 0)}
+          loading={isSubmitting || isCreating}
+          disabled={isSubmitting || isCreating || (!content.trim() && selectedImages.length === 0)}
         >
-          Publicar
+          {isSubmitting || isCreating ? 'Publicando...' : 'Publicar'}
         </Button>
       </View>
     </KeyboardAvoidingView>

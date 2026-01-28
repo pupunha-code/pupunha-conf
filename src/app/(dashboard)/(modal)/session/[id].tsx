@@ -141,7 +141,7 @@ export default function SessionDetailScreen() {
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    router.push(`/(event)/speaker/${speakerId}`);
+    router.push(`/(modal)/speaker/${speakerId}`);
   };
 
   return (

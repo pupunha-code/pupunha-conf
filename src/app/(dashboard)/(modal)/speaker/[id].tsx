@@ -175,7 +175,7 @@ export default function SpeakerDetailScreen() {
                       key={session.id}
                       session={session}
                       index={index}
-                      onPress={() => router.push(`/(event)/session/${session.id}`)}
+                      onPress={() => router.push(`/(modal)/session/${session.id}`)}
                     />
                   ))}
                 </View>

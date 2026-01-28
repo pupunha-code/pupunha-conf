@@ -170,7 +170,7 @@ export default function CalendarScreen() {
   };
 
   const handleSessionPress = (sessionId: string) => {
-    router.push(`/(event)/session/${sessionId}`);
+    router.push(`/(modal)/session/${sessionId}`);
   };
 
   const handleChangeEvent = () => {

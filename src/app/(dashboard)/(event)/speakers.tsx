@@ -29,7 +29,7 @@ const SpeakerCard = memo(function SpeakerCard({ speaker, index }: SpeakerCardPro
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    router.push(`/(event)/speaker/${speaker.id}`);
+    router.push(`/(modal)/speaker/${speaker.id}`);
   };
 
   return (

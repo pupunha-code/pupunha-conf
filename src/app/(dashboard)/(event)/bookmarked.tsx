@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,11 +24,11 @@ export default function BookmarkedScreen() {
   const { activeEvent, bookmarkedSessions, isLoading, refetch } = useActiveEvent();
 
   const handleSessionPress = (sessionId: string) => {
-    router.push(`/(event)/session/${sessionId}`);
+    router.push(`/(dashboard)/(modal)/session/${sessionId}`);
   };
 
   const handleExplore = () => {
-    router.push('/(event)/calendar');
+    router.push('/(dashboard)/(event)/calendar');
   };
 
   if (!activeEvent) {
