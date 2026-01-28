@@ -116,7 +116,7 @@ export function FeedPostCard({ post }: FeedPostCardProps) {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             }
             const imagesParam = encodeURIComponent(JSON.stringify(post.image_urls));
-            router.push(`/(dashboard)/(modal)/image-viewer/${index}?images=${imagesParam}`);
+            router.push(`/(modal)/image-viewer/${index}?images=${imagesParam}`);
           }}
         />
       )}
