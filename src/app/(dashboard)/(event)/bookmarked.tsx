@@ -24,7 +24,7 @@ export default function BookmarkedScreen() {
   const { activeEvent, bookmarkedSessions, isLoading, refetch } = useActiveEvent();
 
   const handleSessionPress = (sessionId: string) => {
-    router.push(`/(dashboard)/(modal)/session/${sessionId}`);
+    router.push(`/(modal)/session/${sessionId}`);
   };
 
   const handleExplore = () => {

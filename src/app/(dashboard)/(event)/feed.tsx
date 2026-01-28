@@ -58,7 +58,7 @@ export default function FeedScreen() {
   };
 
   const handleCreatePost = () => {
-      router.push('/(dashboard)/(modal)/create-post');
+      router.push('/(modal)/create-post');
     if (hapticEnabled) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }

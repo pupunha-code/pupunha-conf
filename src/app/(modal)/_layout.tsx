@@ -1,9 +1,12 @@
+import { useTheme } from '@/hooks';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 
 export default function ModalLayout() {
+  const { colorScheme } = useTheme();
+
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack>
       <Stack.Screen
         name="create-post/index"
         options={{
@@ -34,7 +37,7 @@ export default function ModalLayout() {
       <Stack.Screen
         name="speaker/[id]"
         options={{
-          presentation: 'fullScreenModal',
+          presentation: 'modal',
           animation: 'slide_from_bottom',
           gestureEnabled: true,
           headerShown: false,

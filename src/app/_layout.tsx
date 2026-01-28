@@ -8,7 +8,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { useEffect, useRef, useState } from 'react';
-import { Platform, StyleSheet, Alert } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { useEventsQuery } from '@/hooks/useEventsQuery';
@@ -113,6 +113,15 @@ function AppInitializer() {
             <Stack.Screen name="index" />
             <Stack.Screen name="auth" />
             <Stack.Screen name="(dashboard)" />
+            <Stack.Screen
+              name="(modal)"
+              options={{
+                presentation: 'modal',
+                animation: 'fade',
+                gestureEnabled: true,
+                headerShown: false,
+              }}
+            />
             <Stack.Screen name="+not-found" />
           </Stack>
         </ThemeProvider>
