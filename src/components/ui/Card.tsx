@@ -58,7 +58,7 @@ export function Card({
     onPress?.(event);
   };
 
-  const cardStyles: ViewStyle[] = [
+  const cardStyles: (ViewStyle | false | undefined)[] = [
     styles.base,
     {
       backgroundColor: themeColors.cardBackground,
@@ -69,7 +69,7 @@ export function Card({
       shadowColor: colorScheme === 'dark' ? '#000' : '#000',
     },
     style,
-  ];
+  ].filter((s): s is ViewStyle => s !== false && s !== undefined);
 
   if (onPress) {
     return (

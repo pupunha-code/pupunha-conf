@@ -59,10 +59,10 @@ const SpeakerCard = memo(function SpeakerCard({ speaker, index }: SpeakerCardPro
             {speaker.name}
           </Text>
 
-          {(speaker.role || speaker.company) && (
+          {(speaker.title || speaker.company) && (
             <Text variant="bodySmall" color="textSecondary" numberOfLines={2}>
-              {speaker.role}
-              {speaker.role && speaker.company && ' @ '}
+              {speaker.title}
+              {speaker.title && speaker.company && ' @ '}
               {speaker.company}
             </Text>
           )}

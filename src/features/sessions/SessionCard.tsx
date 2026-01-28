@@ -37,6 +37,8 @@ const getSessionTypeLabel = (type: SessionType): string => {
     keynote: 'Keynote',
     break: 'Intervalo',
     networking: 'Networking',
+    opening: 'Abertura',
+    closing: 'Encerramento',
   };
   return labels[type] || type;
 };
@@ -49,6 +51,8 @@ const getSessionTypeIcon = (type: SessionType): keyof typeof Ionicons.glyphMap =
     keynote: 'star-outline',
     break: 'cafe-outline',
     networking: 'chatbubbles-outline',
+    opening: 'play-outline',
+    closing: 'stop-outline',
   };
   return icons[type] || 'calendar-outline';
 };

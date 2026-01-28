@@ -31,7 +31,7 @@ export default function EventSelectorScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     setActiveEvent(event.id, events);
-    router.replace('/(event)/calendar');
+    router.replace('/(dashboard)/(event)/calendar' as any);
   };
 
   const formatEventDates = (startDate: string, endDate: string) => {

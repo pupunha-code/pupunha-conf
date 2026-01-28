@@ -98,7 +98,7 @@ export const useSessionsStore = create<SessionsState>((set, get) => ({
     const groups: SessionGroup[] = Array.from(groupedMap.entries())
       .map(([time, data]) => {
         const startDate = new Date(time);
-        const endDate = new Date(data[0].endTime);
+        const endDate = new Date(data[0]?.endTime || time);
 
         const formatTime = (date: Date) =>
           date.toLocaleTimeString('pt-BR', {

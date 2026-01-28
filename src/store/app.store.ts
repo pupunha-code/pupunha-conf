@@ -31,8 +31,8 @@ interface AppState {
 }
 
 export const useAppStore = create(
-  persist<AppState>(
-    (set, get) => ({
+  persist<AppState, [], [], Partial<AppState>>(
+    (set) => ({
       // Theme
       themeMode: 'system',
       setThemeMode: (mode) => set({ themeMode: mode }),
@@ -59,16 +59,14 @@ export const useAppStore = create(
     {
       name: 'pupunha-conf-app-store',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) =>
-        ({
-          themeMode: state.themeMode,
-          hapticEnabled: state.hapticEnabled,
-          useLocalTimezone: state.useLocalTimezone,
-          notificationsEnabled: state.notificationsEnabled,
-          userProfile: state.userProfile,
-          bookmarks: state.bookmarks,
-          lastRefreshed: state.lastRefreshed,
-        }) as AppState,
+      partialize: (state) => ({
+        themeMode: state.themeMode,
+        hapticEnabled: state.hapticEnabled,
+        useLocalTimezone: state.useLocalTimezone,
+        notificationsEnabled: state.notificationsEnabled,
+        userProfile: state.userProfile,
+        lastRefreshed: state.lastRefreshed,
+      }),
     },
   ),
 );

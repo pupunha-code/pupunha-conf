@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import { feedService } from '@/services/feed.service';
-import { CreateFeedPostInput, FeedPost, FeedState } from '@/types/feed';
+import { CreateFeedPostInput, FeedState } from '@/types/feed';
 
 interface FeedStoreState extends FeedState {
   // Actions
@@ -16,7 +16,7 @@ interface FeedStoreState extends FeedState {
   subscribeToUpdates: (eventId: string) => () => void;
 }
 
-export const useFeedStore = create<FeedStoreState>((set, get) => ({
+export const useFeedStore = create<FeedStoreState>((set) => ({
   posts: [],
   isLoading: false,
   isCreating: false,

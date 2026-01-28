@@ -8,7 +8,9 @@ export interface ApiError {
 }
 
 class EventsApi {
-  public async fetchWithErrorHandling<T>(url: string): Promise<T> {}
+  public async fetchWithErrorHandling<T>(_url: string): Promise<T> {
+    throw new Error('Not implemented');
+  }
 
   public async getAllEvents(): Promise<ConferenceEvent[]> {
     // return this.fetchWithErrorHandling<ConferenceEvent[]>(`${API_BASE_URL}/events.json`);

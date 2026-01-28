@@ -29,7 +29,7 @@ export default function SpeakerDetailScreen() {
   const { colorScheme, hapticEnabled } = useTheme();
   const themeColors = colors[colorScheme];
 
-  const { getSpeaker, getSessionsBySpeaker, activeEvent } = useActiveEvent();
+  const { getSpeaker, getSessionsBySpeaker } = useActiveEvent();
   const speaker = getSpeaker(id);
   const sessions = speaker ? getSessionsBySpeaker(id) : [];
 
@@ -193,7 +193,7 @@ interface SessionCardProps {
   onPress: () => void;
 }
 
-function SessionCard({ session, index, onPress }: SessionCardProps) {
+function SessionCard({ session, onPress }: SessionCardProps) {
   const { colorScheme } = useTheme();
   const themeColors = colors[colorScheme];
   const { useLocalTimezone } = useAppStore();

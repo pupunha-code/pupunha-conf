@@ -10,8 +10,8 @@ const fullDateFormat = `${timeFormat}, LLL d, yyyy`;
 
 export const formatSessionTime = (session: Session, shouldUseLocalTz: boolean) => {
   try {
-    const startsAtDate = new Date(session.startsAt);
-    const endsAtDate = new Date(session.endsAt);
+    const startsAtDate = new Date(session.startTime);
+    const endsAtDate = new Date(session.endTime);
 
     if (shouldUseLocalTz) {
       return `${formatDate(startsAtDate, dateTimeFormat)} - ${formatDate(endsAtDate, dateTimeFormat)}`;

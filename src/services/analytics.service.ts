@@ -132,16 +132,17 @@ export class AnalyticsService {
     }
   }
 
-  getSessionURL(): string | null {
+  getSessionURL(callback: (sessionURL: string) => void): void {
     if (!this.isInitialized) {
-      return null;
+      callback('');
+      return;
     }
 
     try {
-      return LogRocket.getSessionURL() || null;
+      LogRocket.getSessionURL(callback);
     } catch (error) {
       console.warn('Failed to get session URL:', error);
-      return null;
+      callback('');
     }
   }
 

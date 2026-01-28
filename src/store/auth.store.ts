@@ -16,8 +16,8 @@ interface AuthStoreState extends AuthState {
 }
 
 export const useAuthStore = create(
-  persist<AuthStoreState>(
-    (set, get) => ({
+  persist<AuthStoreState, [], [], Partial<AuthStoreState>>(
+    (set) => ({
       user: null,
       isLoading: true,
       isAuthenticated: false,
@@ -28,20 +28,19 @@ export const useAuthStore = create(
           set({ isLoading: true });
 
           // This will open the browser for OAuth flow
-          const result = await authService.signInWithGoogle();
-          console.log('Auth store: OAuth result:', result);
+          await authService.signInWithGoogle();
+          console.log('Auth store: OAuth completed');
 
           // After OAuth, the session will be handled by the auth state change listener
           // So we just need to indicate loading is complete
           set({ isLoading: false });
-
-          return result;
         } catch (error) {
           console.error('Auth store sign in error:', error);
           set({ isLoading: false });
 
           // Provide user-friendly error message
-          if (error.message?.includes('Provider') && error.message?.includes('not enabled')) {
+          const errorMessage = error instanceof Error ? error.message : '';
+          if (errorMessage.includes('Provider') && errorMessage.includes('not enabled')) {
             throw new Error(
               'Google sign-in não está configurado ainda. Configure o Google OAuth no Supabase primeiro.',
             );
@@ -71,7 +70,6 @@ export const useAuthStore = create(
           // Only check for existing session, don't fail if Google provider isn't configured
           const {
             data: { session },
-            error,
           } = await authService.getSession();
 
           // If there's no session or error, just set defaults without failing

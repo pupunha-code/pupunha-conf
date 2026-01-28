@@ -1,10 +1,7 @@
-import { useTheme } from '@/hooks';
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
 
 export default function ModalLayout() {
-  const { colorScheme } = useTheme();
-
   return (
     <Stack>
       <Stack.Screen

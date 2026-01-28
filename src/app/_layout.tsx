@@ -3,11 +3,11 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as NavigationBar from 'expo-navigation-bar';
 import * as Notifications from 'expo-notifications';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { setBackgroundColorAsync } from 'expo-system-ui';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
@@ -32,6 +32,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -48,21 +50,15 @@ const queryClient = new QueryClient({
 });
 
 function AppInitializer() {
-  const router = useRouter();
   const { colorScheme, isDark } = useTheme();
   const themeColors = colors[colorScheme];
 
   const { data: events = [], isLoading: eventsLoading } = useEventsQuery();
-  const { initializeActiveEvent, activeEventId, isInitialized, getActiveEvent, getActiveDay } =
-    useEventStore();
+  const { initializeActiveEvent, isInitialized } = useEventStore();
   const { initialize: initAuth } = useAuthStore();
-  const [isMounted, setIsMounted] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
-  const hasNavigated = useRef(false);
 
   // Mark component as mounted after first render and initialize analytics and auth
   useEffect(() => {
-    setIsMounted(true);
     analytics.initialize();
     initAuth();
   }, [initAuth]);
@@ -74,14 +70,11 @@ function AppInitializer() {
       // Delay to ensure Zustand persist has hydrated from AsyncStorage
       const timer = setTimeout(() => {
         initializeActiveEvent(events);
-        // Mark as hydrated after a small additional delay to ensure state updates
-        setTimeout(() => {
-          setIsHydrated(true);
-        }, 50);
       }, 150);
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [initializeActiveEvent, events, eventsLoading]);
 
   // Update system UI colors based on theme

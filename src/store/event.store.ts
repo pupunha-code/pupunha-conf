@@ -38,7 +38,7 @@ interface EventStore {
 }
 
 export const useEventStore = create(
-  persist<EventStore>(
+  persist<EventStore, [], [], Partial<EventStore>>(
     (set, get) => ({
       activeEventId: null,
       activeDayId: {},
@@ -49,7 +49,7 @@ export const useEventStore = create(
         const { activeDayId } = get();
         const event = events.find((e) => e.id === eventId);
 
-        if (event && !activeDayId[eventId] && event.days.length > 0) {
+        if (event && !activeDayId[eventId] && event.days.length > 0 && event.days[0]) {
           set({
             activeEventId: eventId,
             activeDayId: {
@@ -68,7 +68,7 @@ export const useEventStore = create(
         // If already initialized and has an active event, ensure day is set
         if (isInitialized && activeEventId) {
           const event = events.find((e) => e.id === activeEventId);
-          if (event && !activeDayId[activeEventId] && event.days.length > 0) {
+          if (event && !activeDayId[activeEventId] && event.days.length > 0 && event.days[0]) {
             set({
               activeDayId: {
                 ...activeDayId,
@@ -85,7 +85,7 @@ export const useEventStore = create(
           if (event) {
             const newActiveDayId = { ...activeDayId };
             // Set first day as active if not already set
-            if (!newActiveDayId[activeEventId] && event.days.length > 0) {
+            if (!newActiveDayId[activeEventId] && event.days.length > 0 && event.days[0]) {
               newActiveDayId[activeEventId] = event.days[0].id;
             }
             set({
@@ -109,7 +109,11 @@ export const useEventStore = create(
           const newActiveDayId = { ...activeDayId };
 
           // Set first day as active if not already set
-          if (!newActiveDayId[eventToSelect.id] && eventToSelect.days.length > 0) {
+          if (
+            !newActiveDayId[eventToSelect.id] &&
+            eventToSelect.days.length > 0 &&
+            eventToSelect.days[0]
+          ) {
             newActiveDayId[eventToSelect.id] = eventToSelect.days[0].id;
           }
 
@@ -142,7 +146,7 @@ export const useEventStore = create(
         const session = get().getSessionById(events, sessionId);
         if (!session) return;
 
-        const scheduleNotification = async (session: Session) => {
+        const scheduleNotification = async (session: Session): Promise<string | undefined> => {
           const fiveMinutesTillSession = subMinutes(new Date(session.startTime), 5);
 
           if (isPast(fiveMinutesTillSession)) {
@@ -153,7 +157,7 @@ export const useEventStore = create(
           const status = await registerForPushNotificationsAsync();
 
           if (status === 'granted') {
-            return Notifications.scheduleNotificationAsync({
+            const notificationId = await Notifications.scheduleNotificationAsync({
               content: {
                 title: `"${session.title}" começa em 5 minutos! ⏰`,
                 data: {
@@ -165,7 +169,9 @@ export const useEventStore = create(
                 date: fiveMinutesTillSession,
               },
             });
+            return notificationId;
           }
+          return undefined;
         };
 
         if (Platform.OS !== 'web' && hapticEnabled) {

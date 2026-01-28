@@ -43,7 +43,7 @@ export default function AuthCallbackScreen() {
             });
 
             console.log('✅ Session set successfully!');
-            router.replace('/(event)/feed');
+            router.replace('/(dashboard)/(event)/feed' as any);
             return;
           }
         }
@@ -57,34 +57,33 @@ export default function AuthCallbackScreen() {
         let attempts = 0;
         const maxAttempts = 20; // 10 seconds
 
-        const checkSession = async () => {
+        const checkSession = async (): Promise<void> => {
           attempts++;
           console.log(`Session polling attempt ${attempts}/${maxAttempts}...`);
 
           try {
             const {
               data: { session },
-              error,
             } = await supabase.auth.getSession();
 
             if (session?.user) {
               console.log('✅ Found session! User is authenticated:', session.user.email);
-              router.replace('/(event)/feed');
-              return true;
+              router.replace('/(dashboard)/(event)/feed' as any);
+              return;
             }
 
             if (attempts < maxAttempts) {
               setTimeout(checkSession, 500);
             } else {
               console.log('❌ Max attempts reached, no session found');
-              router.replace('/(event)/feed');
+              router.replace('/(dashboard)/(event)/feed' as any);
             }
           } catch (error) {
             console.error('Session check error:', error);
             if (attempts < maxAttempts) {
               setTimeout(checkSession, 500);
             } else {
-              router.replace('/(event)/feed');
+              router.replace('/(dashboard)/(event)/feed' as any);
             }
           }
         };

@@ -15,7 +15,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
-import { Card, Text } from '@/components/ui';
+import { Text } from '@/components/ui';
 import { SessionCard } from '@/features/sessions/SessionCard';
 import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';

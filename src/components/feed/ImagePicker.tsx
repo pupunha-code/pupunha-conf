@@ -80,21 +80,26 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
   );
 
   const handleReorderImages = useCallback(
-    (data: ImagePreview[] | undefined) => {
-      // Guard against undefined data
-      if (!data || !Array.isArray(data)) {
-        console.warn('handleReorderImages: Invalid data received', data);
+    (fromIndex: number, toIndex: number) => {
+      const newImages = [...images];
+      const [movedItem] = newImages.splice(fromIndex, 1);
+
+      // Guard against invalid indices
+      if (!movedItem) {
+        console.warn('handleReorderImages: Invalid indices', { fromIndex, toIndex });
         return;
       }
 
-      const reorderedImages = data.map((img, index) => ({ ...img, order: index }));
+      newImages.splice(toIndex, 0, movedItem);
+
+      const reorderedImages = newImages.map((img, index) => ({ ...img, order: index }));
       onImagesChange(reorderedImages);
 
       if (hapticEnabled) {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       }
     },
-    [onImagesChange, hapticEnabled],
+    [images, onImagesChange, hapticEnabled],
   );
 
   const keyExtractor = useCallback((item: ImagePreview) => item.id, []);

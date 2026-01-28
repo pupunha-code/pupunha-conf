@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
@@ -27,6 +26,8 @@ const getSessionTypeLabel = (type: SessionType): string => {
     keynote: 'Keynote',
     break: 'Intervalo',
     networking: 'Networking',
+    opening: 'Abertura',
+    closing: 'Encerramento',
   };
   return labels[type] || type;
 };
@@ -71,9 +72,9 @@ function SpeakerCard({ speaker, index, onPress }: SpeakerCardProps) {
           <Text variant="h4" color="text" numberOfLines={1}>
             {speaker.name}
           </Text>
-          {speaker.role && speaker.company && (
+          {speaker.title && speaker.company && (
             <Text variant="bodySmall" color="textSecondary" numberOfLines={1}>
-              {speaker.role} @ {speaker.company}
+              {speaker.title} @ {speaker.company}
             </Text>
           )}
         </View>
@@ -90,7 +91,6 @@ function SpeakerCard({ speaker, index, onPress }: SpeakerCardProps) {
  */
 export default function SessionDetailScreen() {
   const router = useRouter();
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colorScheme, hapticEnabled } = useTheme();
@@ -134,9 +134,6 @@ export default function SessionDetailScreen() {
       </Screen>
     );
   }
-
-  const startTime = new Date(session.startTime);
-  const endTime = new Date(session.endTime);
 
   const handleSpeakerPress = (speakerId: string) => {
     if (hapticEnabled) {

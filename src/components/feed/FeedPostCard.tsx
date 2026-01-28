@@ -10,7 +10,7 @@ import { ImageGrid } from '@/components/feed/ImageGrid';
 import { Card } from '@/components/ui/Card';
 import { Text } from '@/components/ui/Text';
 import { useTheme } from '@/hooks/useTheme';
-import { borderRadius, colors, spacing } from '@/lib/theme';
+import { colors, spacing } from '@/lib/theme';
 import { useAuthStore } from '@/store/auth.store';
 import { useFeedStore } from '@/store/feed.store';
 import { FeedPost } from '@/types/feed';

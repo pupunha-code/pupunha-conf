@@ -45,6 +45,7 @@ export default function FeedScreen() {
       const unsubscribe = subscribeToUpdates(activeEvent.id);
       return unsubscribe;
     }
+    return undefined;
   }, [activeEvent?.id, isAuthenticated, fetchPosts, subscribeToUpdates, clearFeed]);
 
   const handleRefresh = async () => {

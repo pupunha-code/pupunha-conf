@@ -17,10 +17,11 @@ export function LoginPrompt() {
       console.log('LoginPrompt: signInWithGoogle completed');
     } catch (error) {
       console.error('LoginPrompt sign in error:', error);
-      Alert.alert(
-        'Erro no Login',
-        error.message || 'Não foi possível fazer login com o Google. Tente novamente.',
-      );
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível fazer login com o Google. Tente novamente.';
+      Alert.alert('Erro no Login', errorMessage);
     }
   };
 
