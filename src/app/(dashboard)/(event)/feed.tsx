@@ -3,6 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
   ListRenderItem,
   Pressable,
@@ -144,7 +145,7 @@ export default function FeedScreen() {
             renderItem={renderPost}
             keyExtractor={(item) => item.id}
             ListHeaderComponent={renderHeader}
-            ListEmptyComponent={!isLoading ? renderEmptyState : null}
+            ListEmptyComponent={!isLoading ? renderEmptyState : <ActivityIndicator size="large" color={themeColors.tint} />}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}

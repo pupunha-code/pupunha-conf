@@ -44,7 +44,7 @@ export function ImagePicker({ images, onImagesChange, maxImages = 4 }: ImagePick
       }
 
       const result = await ImagePickerExpo.launchImageLibraryAsync({
-        mediaTypes: ImagePickerExpo.MediaType.Images,
+        mediaTypes: ['images'],
         quality: 0.8,
         allowsMultipleSelection: true,
         selectionLimit: maxImages - images.length,
