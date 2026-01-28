@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
@@ -12,10 +11,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Screen } from '@/components/layout';
 import { Button, Card, Text } from '@/components/ui';
+import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useAppStore } from '@/store/app.store';
-import { useActiveEvent } from '@/hooks/useActiveEvent';
 import { Session } from '@/types';
 import { getGitHubAvatarUrl } from '@/utils/getGitHubAvatar';
 
@@ -77,7 +76,7 @@ export default function SpeakerDetailScreen() {
         }}
       />
 
-      <Screen safeArea="top" padded={false}>
+      <Screen safeArea="none" padded={false}>
         <ScrollView
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
           showsVerticalScrollIndicator={false}
@@ -219,13 +218,7 @@ function SessionCard({ session, index, onPress }: SessionCardProps) {
 
   return (
     <Pressable onPress={onPress}>
-      <Card
-        elevated
-        style={[
-          styles.sessionCard,
-          { backgroundColor: themeColors.cardBackground, borderColor: themeColors.cardBorder },
-        ]}
-      >
+      <Card style={styles.sessionCard}>
         <View style={styles.sessionHeader}>
           <View style={styles.sessionTime}>
             <Ionicons name="time-outline" size={16} color={themeColors.tint} />
