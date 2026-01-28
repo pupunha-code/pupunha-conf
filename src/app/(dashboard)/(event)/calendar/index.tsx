@@ -22,6 +22,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useAppStore } from '@/store/app.store';
 import { EventDay, Session } from '@/types';
+import { AnimatedFlashList, FlashList } from '@shopify/flash-list';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -126,8 +127,8 @@ export default function CalendarScreen() {
     }
   };
 
-  // Group sessions by time slot for better display
-  const groupedSessions = useMemo(() => {
+  // Flatten sessions data for single FlashList
+  const flattenedSessions = useMemo(() => {
     if (!activeDay) return [];
 
     const groups = new Map<string, Session[]>();
@@ -138,7 +139,7 @@ export default function CalendarScreen() {
       groups.set(timeKey, [...existing, session]);
     });
 
-    return Array.from(groups.entries())
+    const sortedGroups = Array.from(groups.entries())
       .map(([time, sessions]) => ({
         time,
         sessions: sessions.sort((a, b) => {
@@ -149,6 +150,21 @@ export default function CalendarScreen() {
         }),
       }))
       .sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+
+    // Flatten into single array with time headers and sessions
+    const flattened: (
+      | { type: 'timeHeader'; time: string }
+      | { type: 'session'; session: Session }
+    )[] = [];
+
+    sortedGroups.forEach(({ time, sessions }) => {
+      flattened.push({ type: 'timeHeader', time });
+      sessions.forEach((session) => {
+        flattened.push({ type: 'session', session });
+      });
+    });
+
+    return flattened;
   }, [activeDay]);
 
   const handleDayPress = (dayId: string) => {
@@ -178,24 +194,12 @@ export default function CalendarScreen() {
   const currentDayId = activeDayId[activeEventId!];
 
   return (
-    <Screen safeArea="top" padded={false}>
+    <Screen safeArea="none" padded={false}>
       {/* Header */}
-      <View style={[styles.header, { borderBottomColor: themeColors.border }]}>
-        <View style={styles.headerContent}>
-          <View style={styles.headerTitleRow}>
-            <Text variant="h2" numberOfLines={1} style={styles.eventName}>
-              {activeEvent.name}
-            </Text>
-            <Pressable
-              onPress={handleChangeEvent}
-              style={[styles.changeEventButton, { backgroundColor: themeColors.surfaceSecondary }]}
-            >
-              <Ionicons name="swap-horizontal" size={16} color={themeColors.icon} />
-            </Pressable>
-          </View>
-
-          {/* Day tabs - only show if multiple days */}
-          {hasMultipleDays && (
+      {hasMultipleDays && (
+        <View style={[styles.header, { borderBottomColor: themeColors.border }]}>
+          <View style={styles.headerContent}>
+            {/* Day tabs - only show if multiple days */}
             <View style={styles.dayTabs}>
               {days.map((day, index) => (
                 <DayTab
@@ -207,13 +211,14 @@ export default function CalendarScreen() {
                 />
               ))}
             </View>
-          )}
+          </View>
         </View>
-      </View>
+      )}
 
       {/* Sessions list */}
-      <Animated.ScrollView
-        entering={FadeIn.delay(200)}
+      <AnimatedFlashList
+        // entering={FadeIn.delay(200)}
+        data={flattenedSessions}
         contentContainerStyle={[styles.sessionsContainer, { paddingBottom: insets.bottom + 100 }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -224,12 +229,11 @@ export default function CalendarScreen() {
             colors={[themeColors.tint]}
           />
         }
-      >
-        {groupedSessions.map(({ time, sessions }, groupIndex) => {
-          const timeLabel = formatTime(time, 'HH:mm');
+        renderItem={({ item, index }) => {
+          if (item.type === 'timeHeader') {
+            const timeLabel = formatTime(item.time, 'HH:mm');
 
-          return (
-            <View key={time} style={styles.timeGroup}>
+            return (
               <View style={styles.timeHeader}>
                 <View style={[styles.timeBadge, { backgroundColor: themeColors.surfaceSecondary }]}>
                   <Text variant="label" color="text">
@@ -238,21 +242,24 @@ export default function CalendarScreen() {
                 </View>
                 <View style={[styles.timeLine, { backgroundColor: themeColors.border }]} />
               </View>
+            );
+          }
 
-              <View style={styles.sessionsList}>
-                {sessions.map((session, sessionIndex) => (
-                  <SessionCard
-                    key={session.id}
-                    session={session}
-                    onPress={() => handleSessionPress(session.id)}
-                    index={groupIndex * 10 + sessionIndex}
-                  />
-                ))}
-              </View>
-            </View>
+          // Session item
+          const session = item.session;
+          return (
+            <SessionCard
+              session={session}
+              onPress={() => handleSessionPress(session.id)}
+              index={index}
+            />
           );
-        })}
-      </Animated.ScrollView>
+        }}
+        keyExtractor={(item, index) =>
+          item.type === 'timeHeader' ? `time-${item.time}-${index}` : `session-${item.session.id}`
+        }
+        getItemType={(item) => item.type}
+      />
     </Screen>
   );
 }
@@ -297,13 +304,10 @@ const styles = StyleSheet.create({
   sessionsContainer: {
     padding: spacing.lg,
   },
-  timeGroup: {
-    marginBottom: spacing.xl,
-  },
   timeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginVertical: spacing.md,
   },
   timeBadge: {
     paddingHorizontal: spacing.md,
@@ -314,8 +318,5 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 1,
     marginLeft: spacing.md,
-  },
-  sessionsList: {
-    gap: spacing.md,
   },
 });

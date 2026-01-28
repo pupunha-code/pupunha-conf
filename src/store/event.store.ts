@@ -38,7 +38,7 @@ interface EventStore {
 }
 
 export const useEventStore = create(
-  persist<EventStore, [], [], Partial<EventStore>>(
+  persist<EventStore>(
     (set, get) => ({
       activeEventId: null,
       activeDayId: {},

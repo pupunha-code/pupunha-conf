@@ -31,7 +31,7 @@ interface AppState {
 }
 
 export const useAppStore = create(
-  persist<AppState, [], [], Partial<AppState>>(
+  persist<AppState>(
     (set) => ({
       // Theme
       themeMode: 'system',

@@ -3,7 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, RefreshControl, SectionList, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { Screen } from '@/components/layout';
@@ -13,7 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { borderRadius, colors, spacing } from '@/lib/theme';
 import { useEventStore } from '@/store';
 import { ConferenceEvent } from '@/types';
-
+import { FlashList } from '@shopify/flash-list';
 /**
  * Event selector screen.
  * Displayed when no event is active or user wants to switch events.
@@ -31,7 +31,7 @@ export default function EventSelectorScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
     setActiveEvent(event.id, events);
-    router.replace('/(dashboard)/(event)/calendar' as any);
+    router.push('/(dashboard)/(event)/calendar');
   };
 
   const formatEventDates = (startDate: string, endDate: string) => {
@@ -65,18 +65,22 @@ export default function EventSelectorScreen() {
     return start > now;
   };
 
-  const eventSections = [
-    {
-      title: 'Próximos eventos',
-      data: events.filter(isEventUpcoming),
-    },
-    {
-      title: 'Eventos passados',
-      data: events.filter((event) => !isEventUpcoming(event)),
-    },
-  ];
+  const upcomingEvents = events.filter(isEventUpcoming);
+  const pastEvents = events.filter((event) => !isEventUpcoming(event));
 
-  if (isLoading && events.length === 0) {
+  const flattenedData: (string | ConferenceEvent)[] = [];
+
+  if (upcomingEvents.length > 0) {
+    flattenedData.push('Próximos eventos');
+    flattenedData.push(...upcomingEvents);
+  }
+
+  if (pastEvents.length > 0) {
+    flattenedData.push('Eventos passados');
+    flattenedData.push(...pastEvents);
+  }
+
+  if (isLoading) {
     return (
       <Screen safeArea="both" padded={true}>
         <View style={styles.centerContainer}>
@@ -111,10 +115,10 @@ export default function EventSelectorScreen() {
 
   return (
     <Screen safeArea="both" padded={false}>
-      <SectionList
+      <FlashList
+        data={flattenedData}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        stickySectionHeadersEnabled={false}
         refreshControl={
           <RefreshControl
             refreshing={isLoading}
@@ -133,7 +137,16 @@ export default function EventSelectorScreen() {
             </Text>
           </View>
         }
-        renderItem={({ item: event, index }) => {
+        renderItem={({ item, index }) => {
+          if (typeof item === 'string') {
+            return (
+              <Text color="text" style={{ marginTop: spacing.xxl, marginBottom: spacing.md }}>
+                {item}
+              </Text>
+            );
+          }
+
+          const event = item as ConferenceEvent;
           const isCurrent = isEventCurrent(event);
           const isUpcoming = isEventUpcoming(event);
           return (
@@ -213,13 +226,10 @@ export default function EventSelectorScreen() {
             </Animated.View>
           );
         }}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text color="text" style={{ marginTop: spacing.xxl, marginBottom: spacing.md }}>
-            {title}
-          </Text>
-        )}
-        keyExtractor={(item) => item.id}
-        sections={eventSections}
+        keyExtractor={(item, index) => (typeof item === 'string' ? `section-${index}` : item.id)}
+        getItemType={(item) => {
+          return typeof item === 'string' ? 'sectionHeader' : 'event';
+        }}
       />
     </Screen>
   );
@@ -271,6 +281,7 @@ const styles = StyleSheet.create({
   },
   eventHeader: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: spacing.sm,

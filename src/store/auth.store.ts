@@ -16,7 +16,7 @@ interface AuthStoreState extends AuthState {
 }
 
 export const useAuthStore = create(
-  persist<AuthStoreState, [], [], Partial<AuthStoreState>>(
+  persist<AuthStoreState>(
     (set) => ({
       user: null,
       isLoading: true,

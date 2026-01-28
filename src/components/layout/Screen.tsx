@@ -37,7 +37,7 @@ export function Screen({
   const insets = useSafeAreaInsets();
 
   const safeAreaPadding = {
-    paddingTop: safeArea === 'top' || safeArea === 'both' ? insets.top + spacing.xxxxl : 0,
+    paddingTop: safeArea === 'top' || safeArea === 'both' ? insets.top : 0,
     paddingBottom: safeArea === 'bottom' || safeArea === 'both' ? insets.bottom : 0,
   };
 

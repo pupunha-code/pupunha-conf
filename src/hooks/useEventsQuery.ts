@@ -12,7 +12,7 @@ export function useEventsQuery() {
   return useQuery({
     queryKey: QUERY_KEYS.events,
     queryFn: eventsApi.getAllEvents,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: Infinity,
   });
 }
 

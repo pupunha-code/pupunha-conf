@@ -22,6 +22,7 @@ import { colors, spacing } from '@/lib/theme';
 import { useAuthStore } from '@/store/auth.store';
 import { useFeedStore } from '@/store/feed.store';
 import { FeedPost } from '@/types/feed';
+import { FlashList } from '@shopify/flash-list';
 
 export default function FeedScreen() {
   const router = useRouter();
@@ -66,7 +67,7 @@ export default function FeedScreen() {
     }
   };
 
-  const renderPost: ListRenderItem<FeedPost> = ({ item }) => <FeedPostCard post={item} />;
+  const renderPost = ({ item }: { item: FeedPost }) => <FeedPostCard post={item} />;
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -141,7 +142,7 @@ export default function FeedScreen() {
         ) : error ? (
           renderError()
         ) : (
-          <FlatList
+          <FlashList
             data={posts}
             renderItem={renderPost}
             keyExtractor={(item) => item.id}

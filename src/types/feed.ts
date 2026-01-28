@@ -14,6 +14,8 @@ export interface FeedPost {
     name?: string;
     avatar_url?: string;
   };
+  // Additional fields can be added as needed
+  info: string;
 }
 
 export interface CreateFeedPostInput {
